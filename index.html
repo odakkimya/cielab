@@ -805,16 +805,23 @@
     createAxisLine(new THREE.Vector3(0, -120, 0), new THREE.Vector3(0, 120, 0), 0xffcc00);
     createAxisLine(new THREE.Vector3(0, 0, -115), new THREE.Vector3(0, 0, 115), 0xffffff);
 
-    function createTextSprite(text, colorStr, baseWidth = 24, baseHeight = 6) {
+    // BÜYÜTÜLMÜŞ VE OKUNABİLİR METİN SPRITE OLUŞTURUCU
+    function createTextSprite(text, colorStr, baseWidth = 36, baseHeight = 9) {
       const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 64;
+      canvas.width = 512;
+      canvas.height = 128;
       const ctx = canvas.getContext('2d');
-      ctx.font = 'Bold 24px -apple-system, sans-serif';
+      
+      // Metnin arkasına yarı saydam siyah kontur ekleyerek okunabilirliği artırıyoruz
+      ctx.fillStyle = "rgba(10, 12, 16, 0.75)";
+      ctx.roundRect ? ctx.roundRect(10, 10, 492, 108, 16) : ctx.fillRect(10, 10, 492, 108);
+      ctx.fill();
+
+      ctx.font = 'Bold 42px -apple-system, sans-serif';
       ctx.fillStyle = colorStr;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, 128, 32);
+      ctx.fillText(text, 256, 64);
 
       const texture = new THREE.CanvasTexture(canvas);
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
@@ -832,14 +839,19 @@
 
     function updateSpriteText(sprite, text, colorStr) {
       const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 64;
+      canvas.width = 512;
+      canvas.height = 128;
       const ctx = canvas.getContext('2d');
-      ctx.font = 'Bold 22px -apple-system, sans-serif';
+      
+      ctx.fillStyle = "rgba(10, 12, 16, 0.75)";
+      ctx.roundRect ? ctx.roundRect(10, 10, 492, 108, 16) : ctx.fillRect(10, 10, 492, 108);
+      ctx.fill();
+
+      ctx.font = 'Bold 40px -apple-system, sans-serif';
       ctx.fillStyle = colorStr;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, 128, 32);
+      ctx.fillText(text, 256, 64);
 
       if (sprite.material.map) sprite.material.map.dispose();
       sprite.material.map = new THREE.CanvasTexture(canvas);
@@ -847,7 +859,7 @@
     }
 
     function addAxisLabel(text, colorStr, x, y, z) {
-      const sprite = createTextSprite(text, colorStr, 22, 5.5);
+      const sprite = createTextSprite(text, colorStr, 32, 8);
       sprite.userData.anchorPos.set(x, y, z);
       sprite.position.set(x, y, z);
       axisGroup.add(sprite);
@@ -884,7 +896,7 @@
     pointAGroup.add(outlineA);
     pointAGroup.add(sphereA);
 
-    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 22, 5.5);
+    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 34, 8.5);
     scene.add(spriteA);
 
     // Nokta B
@@ -902,7 +914,7 @@
     pointBGroup.add(outlineB);
     pointBGroup.add(sphereB);
 
-    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 22, 5.5);
+    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 34, 8.5);
     scene.add(spriteB);
 
     scene.add(pointAGroup);
@@ -915,7 +927,7 @@
     deltaCylinder.renderOrder = 996;
     scene.add(deltaCylinder);
 
-    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 20, 5);
+    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 30, 7.5);
     scene.add(spriteDistance);
 
     let currentPosA = new THREE.Vector3();
@@ -1003,7 +1015,6 @@
       const dirAB = currentPosB.clone().sub(currentPosA);
       const dist = dirAB.length();
 
-      // Etiketleri noktalardan daha uzağa iterek netlik sağlama
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
@@ -1081,16 +1092,16 @@
       controls.update();
     }
 
-    // 11. HASSAS VE KÜÇÜK BOYUTLANDIRMA (SCREEN-SPACE SCALING)
+    // 11. YAZI BOYUTLARINI GENİŞLETİLMİŞ EKRAN ÖLÇEKLENDİRMESİ
     function updateObjectScreenSizes() {
-      // A. Noktaları Küçük ve Zarif Tut (Önceki 0.016 katsayısı 0.0055'e düşürüldü)
+      // A. Nokta Boyutu
       const distA = camera.position.distanceTo(pointAGroup.position);
       const distB = camera.position.distanceTo(pointBGroup.position);
-      const pointFactor = 0.0055; // Ekranda ~6px zarif boyut
+      const pointFactor = 0.0055;
       pointAGroup.scale.setScalar(distA * pointFactor);
       pointBGroup.scale.setScalar(distB * pointFactor);
 
-      // B. Bağlantı Silindirini İnce Yap
+      // B. Bağlantı Çizgisi
       const distAB = currentPosA.distanceTo(currentPosB);
       if (distAB < 0.001) {
         deltaCylinder.visible = false;
@@ -1105,11 +1116,11 @@
         );
 
         const camDist = camera.position.distanceTo(mid);
-        const lineRadius = Math.max(0.08, camDist * 0.0011); // İnce çizgi
+        const lineRadius = Math.max(0.08, camDist * 0.0011);
         deltaCylinder.scale.set(lineRadius, distAB, lineRadius);
       }
 
-      // C. Etiket Yazılarını Dengeli Ölçeklendir
+      // C. BÜYÜTÜLMÜŞ METİN ÖLÇEKLENDİRMESİ (Factor 0.0030'dan 0.0055'e çıkarıldı)
       const widthHalf = window.innerWidth / 2;
       const heightHalf = window.innerHeight / 2;
       const tempVec = new THREE.Vector3();
@@ -1120,7 +1131,7 @@
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
         
-        const factor = is2DMode ? 0.0028 : 0.0030;
+        const factor = is2DMode ? 0.0050 : 0.0055;
         const scaleVal = dist * factor;
         
         sprite.scale.set(
@@ -1135,7 +1146,7 @@
         sprite.userData.screenOffset.set(0, 0);
       });
 
-      // D. Çakışma Önleme (Etiketler Ayrıştırma)
+      // D. Çakışma Önleme
       const dynamicLabels = [spriteA, spriteB, spriteDistance];
       for (let i = 0; i < dynamicLabels.length; i++) {
         for (let j = i + 1; j < dynamicLabels.length; j++) {
@@ -1145,8 +1156,8 @@
           const dx = (s2.userData.screenX + s2.userData.screenOffset.x) - (s1.userData.screenX + s1.userData.screenOffset.x);
           const dy = (s2.userData.screenY + s2.userData.screenOffset.y) - (s1.userData.screenY + s1.userData.screenOffset.y);
           
-          const minDistX = 65;
-          const minDistY = 24;
+          const minDistX = 100;
+          const minDistY = 36;
 
           if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
             const overlapY = (minDistY - Math.abs(dy)) * (dy >= 0 ? 1 : -1);
