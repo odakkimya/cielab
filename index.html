@@ -819,15 +819,13 @@
       const texture = new THREE.CanvasTexture(canvas);
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
       
-      // Büyüklük referans özellikleri
       sprite.userData = {
         baseWidth: baseWidth,
         baseHeight: baseHeight,
-        anchorPos: new THREE.Vector3(), // Temel 3B pozisyonu
-        screenOffset: new THREE.Vector2(0, 0), // Çakışma önleyici piksel kayması
-        boxWidth: baseWidth * 3.5,
-        boxHeight: baseHeight * 3.5
+        anchorPos: new THREE.Vector3(),
+        screenOffset: new THREE.Vector2(0, 0)
       };
+      sprite.renderOrder = 1000;
       allSprites.push(sprite);
       return sprite;
     }
@@ -865,39 +863,62 @@
 
     scene.add(axisGroup);
 
-    // 7. Dinamik Noktalar
+    // 7. Yüksek Kontrastlı Dinamik Renk Noktaları (A ve B)
     const pointAGroup = new THREE.Group();
     const pointBGroup = new THREE.Group();
 
+    // Nokta A Yapısı (İç Renkli Küre + Beyaz Kontur Küre)
     const baseSphereGeo = new THREE.SphereGeometry(1.0, 32, 32);
-
     const sphereA = new THREE.Mesh(
       baseSphereGeo,
-      new THREE.MeshBasicMaterial({ color: 0xff3333 })
+      new THREE.MeshBasicMaterial({ color: 0xff3333, depthTest: false })
     );
-    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 30, 7.5);
+    const outlineA = new THREE.Mesh(
+      baseSphereGeo,
+      new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })
+    );
+    outlineA.scale.setScalar(1.25);
+    sphereA.renderOrder = 998;
+    outlineA.renderOrder = 997;
+    pointAGroup.add(outlineA);
     pointAGroup.add(sphereA);
+
+    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 30, 7.5);
     scene.add(spriteA);
 
+    // Nokta B Yapısı (İç Renkli Küre + Beyaz Kontur Küre)
     const sphereB = new THREE.Mesh(
       baseSphereGeo,
-      new THREE.MeshBasicMaterial({ color: 0x3399ff })
+      new THREE.MeshBasicMaterial({ color: 0x3399ff, depthTest: false })
     );
-    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 30, 7.5);
+    const outlineB = new THREE.Mesh(
+      baseSphereGeo,
+      new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })
+    );
+    outlineB.scale.setScalar(1.25);
+    sphereB.renderOrder = 998;
+    outlineB.renderOrder = 997;
+    pointBGroup.add(outlineB);
     pointBGroup.add(sphereB);
+
+    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 30, 7.5);
     scene.add(spriteB);
 
     scene.add(pointAGroup);
     scene.add(pointBGroup);
 
-    let deltaLineGeometry = new THREE.BufferGeometry();
-    let deltaLine = new THREE.Line(deltaLineGeometry, new THREE.LineDashedMaterial({
-      color: 0x00ffcc, dashSize: 2, gapSize: 1
-    }));
-    scene.add(deltaLine);
+    // 8. Sabit Ekran Kalınlıklı Net Bağlantı Silindiri (Delta E Çizgisi)
+    const deltaCylinderGeo = new THREE.CylinderGeometry(1, 1, 1, 12);
+    const deltaCylinderMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc, depthTest: false });
+    const deltaCylinder = new THREE.Mesh(deltaCylinderGeo, deltaCylinderMat);
+    deltaCylinder.renderOrder = 996;
+    scene.add(deltaCylinder);
 
     const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 28, 7);
     scene.add(spriteDistance);
+
+    let currentPosA = new THREE.Vector3();
+    let currentPosB = new THREE.Vector3();
 
     // Rastgele Yakın Renk Üretme Fonksiyonu
     function generateRandomCloseColors() {
@@ -962,7 +983,7 @@
       document.getElementById('descEval').innerHTML = descEval;
     }
 
-    // 8. Güncelleme Fonksiyonu
+    // 9. Güncelleme Fonksiyonu
     function updateColorsAndDeltaE() {
       const l1 = parseFloat(document.getElementById('l1').value) || 0;
       const a1 = parseFloat(document.getElementById('a1').value) || 0;
@@ -972,43 +993,34 @@
       const a2 = parseFloat(document.getElementById('a2').value) || 0;
       const b2 = parseFloat(document.getElementById('b2').value) || 0;
 
-      const posA = labTo3dPos(l1, a1, b1);
-      const posB = labTo3dPos(l2, a2, b2);
+      currentPosA.copy(labTo3dPos(l1, a1, b1));
+      currentPosB.copy(labTo3dPos(l2, a2, b2));
 
-      pointAGroup.position.copy(posA);
-      pointBGroup.position.copy(posB);
+      pointAGroup.position.copy(currentPosA);
+      pointBGroup.position.copy(currentPosB);
 
-      const dirAB = posB.clone().sub(posA);
+      const dirAB = currentPosB.clone().sub(currentPosA);
       const dist = dirAB.length();
-
-      const dynamicRadius = Math.max(0.25, Math.min(1.8, dist * 0.25));
-      sphereA.scale.setScalar(dynamicRadius);
-      sphereB.scale.setScalar(dynamicRadius);
 
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
-        const offsetA = posA.clone().sub(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
+        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
         offsetA.y += 2;
         spriteA.userData.anchorPos.copy(offsetA);
 
-        const offsetB = posB.clone().add(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
+        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
         offsetB.y -= 2;
         spriteB.userData.anchorPos.copy(offsetB);
 
-        const midPos = posA.clone().add(posB).multiplyScalar(0.5);
+        const midPos = currentPosA.clone().add(currentPosB).multiplyScalar(0.5);
         const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(4);
         spriteDistance.userData.anchorPos.copy(midPos).add(perpDir);
       } else {
-        spriteA.userData.anchorPos.copy(posA).add(new THREE.Vector3(-6, 5, 0));
-        spriteB.userData.anchorPos.copy(posB).add(new THREE.Vector3(6, -5, 0));
-        spriteDistance.userData.anchorPos.copy(posA).add(new THREE.Vector3(0, 8, 0));
+        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-6, 5, 0));
+        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(6, -5, 0));
+        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 8, 0));
       }
-
-      deltaLineGeometry.dispose();
-      deltaLineGeometry = new THREE.BufferGeometry().setFromPoints([posA, posB]);
-      deltaLine.geometry = deltaLineGeometry;
-      deltaLine.computeLineDistances();
 
       const rgb1 = labToRgb(l1, a1, b1);
       const rgb2 = labToRgb(l2, a2, b2);
@@ -1040,7 +1052,7 @@
       document.getElementById(id).addEventListener('input', updateColorsAndDeltaE);
     });
 
-    // 9. Kamerayı Noktalara Odaklama
+    // 10. Kamerayı Noktalara Odaklama
     function focusOnPoints() {
       const l1 = parseFloat(document.getElementById('l1').value) || 0;
       const a1 = parseFloat(document.getElementById('a1').value) || 0;
@@ -1067,22 +1079,48 @@
       controls.update();
     }
 
-    // 10. SABİT PİKSEL BOYUTU VE DİNAMİK ÇAKIŞMA ÖNLEME (COLLISION AVOIDANCE)
-    function updateSpriteScalesAndPositions() {
+    // 11. DİNAMİK SABİTLENMİŞ BOYUTLAR & ÇAKIŞMA ÖNLEME (CONSTANT SCREEN SIZE)
+    function updateObjectScreenSizes() {
+      // A. Nokta Çaplarını Sabit Piksel Boyutunda Tut
+      const distA = camera.position.distanceTo(pointAGroup.position);
+      const distB = camera.position.distanceTo(pointBGroup.position);
+      const pointFactor = 0.016; // Ekranda sabit ~14px görünüm
+      pointAGroup.scale.setScalar(distA * pointFactor);
+      pointBGroup.scale.setScalar(distB * pointFactor);
+
+      // B. İki Nokta Arasındaki Çizgiyi (Silindiri) Sabit Piksel Kalınlığında Tut
+      const distAB = currentPosA.distanceTo(currentPosB);
+      if (distAB < 0.001) {
+        deltaCylinder.visible = false;
+      } else {
+        deltaCylinder.visible = true;
+        const mid = currentPosA.clone().add(currentPosB).multiplyScalar(0.5);
+        deltaCylinder.position.copy(mid);
+
+        // Silindir yönlendirmesi
+        deltaCylinder.quaternion.setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0),
+          currentPosB.clone().sub(currentPosA).normalize()
+        );
+
+        // Çizgi kalınlığı kameraya olan mesafeyle sabitleştirilir
+        const camDist = camera.position.distanceTo(mid);
+        const lineRadius = Math.max(0.15, camDist * 0.0028);
+        deltaCylinder.scale.set(lineRadius, distAB, lineRadius);
+      }
+
+      // C. Tüm Etiket Yazılarını Sabit Piksel Boyutunda Tut ve Çakışmayı Önle
       const widthHalf = window.innerWidth / 2;
       const heightHalf = window.innerHeight / 2;
       const tempVec = new THREE.Vector3();
 
-      // Step A: Kameraya göre sabit piksel boyutu ayarla ve ekran (2D) koordinatlarını hesapla
       allSprites.forEach(sprite => {
         if (!sprite.visible) return;
 
-        // 1. Sabit boyut ölçeklendirmesi
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
         
-        // Kamera yaklaşınca büyümemesi için sabit açı oranı
-        const factor = is2DMode ? 0.0035 : 0.0038;
+        const factor = is2DMode ? 0.0032 : 0.0035;
         const scaleVal = dist * factor;
         
         sprite.scale.set(
@@ -1091,16 +1129,15 @@
           1
         );
 
-        // 2. 2D Ekran Koordinatı
+        // 2D Ekran İzdüşümü
         tempVec.copy(anchor).project(camera);
         sprite.userData.screenX = (tempVec.x * widthHalf) + widthHalf;
         sprite.userData.screenY = -(tempVec.y * heightHalf) + heightHalf;
-        sprite.userData.screenOffset.set(0, 0); // Reset offset
+        sprite.userData.screenOffset.set(0, 0);
       });
 
-      // Step B: Öncelikli Etiketlerde 2D Çakışma Kontrolü (A, B ve ΔE etiketleri)
+      // Dinamik Etiketlerde Çakışma Önleme
       const dynamicLabels = [spriteA, spriteB, spriteDistance];
-      
       for (let i = 0; i < dynamicLabels.length; i++) {
         for (let j = i + 1; j < dynamicLabels.length; j++) {
           const s1 = dynamicLabels[i];
@@ -1109,11 +1146,10 @@
           const dx = (s2.userData.screenX + s2.userData.screenOffset.x) - (s1.userData.screenX + s1.userData.screenOffset.x);
           const dy = (s2.userData.screenY + s2.userData.screenOffset.y) - (s1.userData.screenY + s1.userData.screenOffset.y);
           
-          const minDistX = 75; // Piksel cinsinden minimum x mesafesi
-          const minDistY = 28; // Piksel cinsinden minimum y mesafesi
+          const minDistX = 75;
+          const minDistY = 28;
 
           if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
-            // Çakışma var: Etiketleri dikey/yatay düzlemde zıt yönlere it
             const overlapY = (minDistY - Math.abs(dy)) * (dy >= 0 ? 1 : -1);
             s2.userData.screenOffset.y += overlapY * 0.6;
             s1.userData.screenOffset.y -= overlapY * 0.6;
@@ -1121,7 +1157,7 @@
         }
       }
 
-      // Step C: Hesaplanan 2D kaymaları 3D dünya pozisyonuna yansıt
+      // Ofsetleri 3B Dünya Konumuna Yansıt
       const rightVec = new THREE.Vector3();
       const upVec = new THREE.Vector3();
       camera.matrixWorld.extractBasis(rightVec, upVec, tempVec);
@@ -1131,7 +1167,7 @@
 
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
-        const pixelToWorld = (dist * 0.0018); // Piksel offsetten dünya koordinatına çevirim oranı
+        const pixelToWorld = (dist * 0.0018);
 
         sprite.position.copy(anchor)
           .addScaledVector(rightVec, sprite.userData.screenOffset.x * pixelToWorld)
@@ -1139,7 +1175,7 @@
       });
     }
 
-    // 11. Mod ve Render Fonksiyonları
+    // 12. Mod ve Render Fonksiyonları
     function toggle2D3D() {
       is2DMode = !is2DMode;
       const btn = document.getElementById('btn2D3D');
@@ -1215,7 +1251,7 @@
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
-      updateSpriteScalesAndPositions(); // Her karede sabit piksel ve çakışmasız etiket güncellemesi
+      updateObjectScreenSizes(); // Nesne, çizgi ve etiketlerin ekran boyutunu sabitle ve çakışmayı önle
       renderer.render(scene, camera);
     }
 
