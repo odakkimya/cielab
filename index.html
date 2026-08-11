@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CIE L*a*b* 3D/2D Renk Uzayı & Delta E Analizi</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      overflow: hidden;
+      background-color: #101216;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #ffffff;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Mobil Paneli Gizleme Düğmesi */
+    .btn-toggle-panel {
+      display: none;
+      background: rgba(0, 153, 204, 0.9);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 6px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Sağ Üst Konteyner */
+    #rightSidebar {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      transition: all 0.3s ease;
+    }
+
+    /* Sağ Üst Bilgi Paneli */
+    #infoPanel {
+      background: rgba(0, 0, 0, 0.88);
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      width: 310px;
+    }
+
+    h1 {
+      font-size: 15px;
+      margin: 0 0 6px 0;
+      color: #0099cc;
+    }
+
+    p {
+      font-size: 11px;
+      line-height: 1.4;
+      color: #bbb;
+      margin-bottom: 6px;
+    }
+
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 10px;
+      margin-top: 6px;
+      border-top: 1px solid #333;
+      padding-top: 6px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* Delta E & Renk Giriş Paneli */
+    #analysisPanel {
+      background: rgba(18, 22, 28, 0.92);
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 153, 204, 0.4);
+      backdrop-filter: blur(10px);
+      width: 310px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #00bfff;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .color-section {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .color-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .color-name {
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .color-preview {
+      width: 28px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1px solid #fff;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .input-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .input-group label {
+      font-size: 9px;
+      color: #aaa;
+    }
+
+    .input-group input {
+      background: #1a202c;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 5px 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      width: 100%;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    /* Delta E Sonuç Kartı */
+    .delta-results {
+      background: linear-gradient(135deg, rgba(0,153,204,0.15) 0%, rgba(0,204,153,0.15) 100%);
+      border: 1px solid #0099cc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 6px;
+    }
+
+    .delta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .delta-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #e2e8f0;
+    }
+
+    .delta-val {
+      font-size: 14px;
+      font-weight: bold;
+      font-family: monospace;
+      color: #00ffcc;
+    }
+
+    .btn-focus {
+      width: 100%;
+      margin-top: 6px;
+      background: #0099cc;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 11px;
+      transition: background 0.2s;
+    }
+
+    .btn-focus:hover {
+      background: #00bfff;
+    }
+
+    /* 2D Modu Dikey L* Eksen Paneli */
+    #panel2DL {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      transform: translateY(-50%);
+      background: rgba(18, 22, 28, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 14px;
+      width: 220px;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+
+    #panel2DL h3 {
+      font-size: 12px;
+      color: #00bfff;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 4px;
+      text-align: center;
+    }
+
+    .l-axis-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 480px;
+      position: relative;
+      margin-top: 4px;
+      padding: 0 6px;
+    }
+
+    .l-bar-track {
+      width: 16px;
+      height: 100%;
+      background: linear-gradient(to top, #000000 0%, #888888 50%, #ffffff 100%);
+      border-radius: 8px;
+      border: 1px solid #666;
+      position: relative;
+    }
+
+    .l-marker {
+      position: absolute;
+      width: 24px;
+      height: 12px;
+      border-radius: 6px;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 8px rgba(0,0,0,0.9);
+      transition: bottom 0.2s ease;
+    }
+
+    .l-values {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    /* Alt Kontrol Paneli */
+    #controls {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.88);
+      padding: 8px 12px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      gap: 6px;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      max-width: 95vw;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #222;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 6px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    button.active {
+      background: #0099cc;
+      border-color: #00bfff;
+    }
+
+    button.btn-toggle-2d {
+      background: #e67e22;
+      border-color: #f39c12;
+      color: #ffffff;
+    }
+
+    button.btn-toggle-2d.active-2d {
+      background: #27ae60;
+      border-color: #2ecc71;
+    }
+
+    button:hover {
+      border-color: #0099cc;
+    }
+
+    .opacity-slider {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      margin-left: 4px;
+      border-left: 1px solid #444;
+      padding-left: 8px;
+    }
+
+    .opacity-slider input {
+      width: 50px;
+    }
+
+    /* --- RESPONSIVE MOBİL CSS MEDYA KURALLARI --- */
+    @media (max-width: 768px) {
+      .btn-toggle-panel {
+        display: block;
+      }
+
+      #rightSidebar {
+        top: 10px;
+        right: 10px;
+        width: calc(100vw - 20px);
+        max-width: 320px;
+        max-height: 55vh;
+      }
+
+      #rightSidebar.minimized #infoPanel,
+      #rightSidebar.minimized #analysisPanel {
+        display: none;
+      }
+
+      #infoPanel, #analysisPanel {
+        width: 100%;
+      }
+
+      #panel2DL {
+        left: 10px;
+        top: auto;
+        bottom: 75px;
+        transform: none;
+        width: 170px;
+        padding: 10px;
+      }
+
+      .l-axis-container {
+        height: 280px;
+      }
+
+      #controls {
+        bottom: 10px;
+        width: 96vw;
+        flex-wrap: wrap;
+        justify-content: center;
+        border-radius: 16px;
+        padding: 6px;
+        gap: 4px;
+      }
+
+      button {
+        padding: 5px 8px;
+        font-size: 10px;
+      }
+
+      .opacity-slider {
+        margin-left: 0;
+        border-left: none;
+        padding-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 2px;
+      }
+    }
+  </style>
+
+  <!-- Three.js ve OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+  <!-- Sağ Üst Konteyner -->
+  <div id="rightSidebar">
+    
+    <button class="btn-toggle-panel" onclick="toggleSidebar()">📱 Paneli Gizle / Göster</button>
+
+    <!-- Bilgi Paneli -->
+    <div id="infoPanel">
+      <h1>3D / 2D LAB Renk Uzayı</h1>
+      <p id="modeDesc">3D Modu: Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.</p>
+      
+      <div class="legend">
+        <div class="legend-item"><div class="color-dot" style="background:#ffffff; border:1px solid #666;"></div> <strong>+L* (100):</strong> Beyaz / <strong>-L* (0):</strong> Siyah</div>
+        <div class="legend-item"><div class="color-dot" style="background:#ff3366;"></div> <strong>+a*:</strong> Kırmızı / <strong>-a*:</strong> Yeşil</div>
+        <div class="legend-item"><div class="color-dot" style="background:#ffcc00;"></div> <strong>+b*:</strong> Sarı / <strong>-b*:</strong> Mavi</div>
+      </div>
+    </div>
+
+    <!-- Delta E Analiz Paneli -->
+    <div id="analysisPanel">
+      <div class="panel-title">
+        <span>📊 Delta E (ΔE) Analizi</span>
+      </div>
+
+      <!-- 1. Renk -->
+      <div class="color-section">
+        <div class="color-header">
+          <span class="color-name" style="color:#ff4d4d;">🔴 1. Renk (Nokta A)</span>
+          <div id="prevColor1" class="color-preview"></div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>L*</label>
+            <input type="number" id="l1" value="55" min="0" max="100" step="1">
+          </div>
+          <div class="input-group">
+            <label>a*</label>
+            <input type="number" id="a1" value="45" min="-128" max="127" step="1">
+          </div>
+          <div class="input-group">
+            <label>b*</label>
+            <input type="number" id="b1" value="30" min="-128" max="127" step="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Renk -->
+      <div class="color-section">
+        <div class="color-header">
+          <span class="color-name" style="color:#3399ff;">🔵 2. Renk (Nokta B)</span>
+          <div id="prevColor2" class="color-preview"></div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>L*</label>
+            <input type="number" id="l2" value="54" min="0" max="100" step="1">
+          </div>
+          <div class="input-group">
+            <label>a*</label>
+            <input type="number" id="a2" value="43" min="-128" max="127" step="1">
+          </div>
+          <div class="input-group">
+            <label>b*</label>
+            <input type="number" id="b2" value="28" min="-128" max="127" step="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Hesaplama Sonuçları -->
+      <div class="delta-results">
+        <div class="delta-row">
+          <span class="delta-label">ΔE*ab (CIE76):</span>
+          <span id="valDelta76" class="delta-val">0.00</span>
+        </div>
+        <div class="delta-row" style="margin-top:4px;">
+          <span class="delta-label">ΔE00 (CIEDE2000):</span>
+          <span id="valDelta00" class="delta-val" style="color:#00ff88; font-size:16px;">0.00</span>
+        </div>
+        <button class="btn-focus" onclick="focusOnPoints()">🔍 Yakınlaş (Noktalara Odaklan)</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 2D Modu L* Eksen Paneli -->
+  <div id="panel2DL">
+    <h3>☀️ L* (Açıklık) Analizi</h3>
+    <div class="l-axis-container">
+      <div class="l-values">
+        <span style="color:#ffffff;">100 (Beyaz)</span>
+        <span style="color:#ff4d4d;">L1*: <strong id="lblL1Val">55</strong></span>
+        <span style="color:#3399ff;">L2*: <strong id="lblL2Val">54</strong></span>
+        <span style="color:#888;">0 (Siyah)</span>
+      </div>
+
+      <div class="l-bar-track">
+        <div id="markerL1" class="l-marker" style="background:#ff4d4d; bottom:55%;"></div>
+        <div id="markerL2" class="l-marker" style="background:#3399ff; bottom:54%;"></div>
+      </div>
+    </div>
+    <div style="font-size:10px; text-align:center; margin-top:8px; color:#00ffcc; font-weight:bold;">
+      Fark (ΔL*): <span id="valDeltaL">1.0</span>
+    </div>
+  </div>
+
+  <!-- Alt Kontrol Paneli -->
+  <div id="controls">
+    <button id="btn2D3D" class="btn-toggle-2d" onclick="toggle2D3D()">2D Moduna Geç</button>
+    <button id="btnSolid" class="active" onclick="setRenderMode('solid')">Saydam Küre</button>
+    <button id="btnWireframe" onclick="setRenderMode('wireframe')">Tel Kafes</button>
+    <button id="btnPoints" onclick="setRenderMode('points')">Nokta Bulutu</button>
+    <button onclick="focusOnPoints()">🔍 Odaklan</button>
+    <button onclick="resetCamera()">Sıfırla</button>
+    
+    <div class="opacity-slider">
+      <span>Opaklık:</span>
+      <input type="range" id="sphereOpacity" min="0.05" max="1" step="0.05" value="0.35" oninput="updateOpacity(this.value)">
+    </div>
+  </div>
+
+  <script>
+    // --- MOBİL PANEL GİZLEME / GÖSTERME ---
+    function toggleSidebar() {
+      document.getElementById('rightSidebar').classList.toggle('minimized');
+    }
+
+    // --- 1. CIELAB -> sRGB MATEMATİKSEL DÖNÜŞÜMÜ ---
+    function labToRgb(L, a, b) {
+      let y = (L + 16) / 116;
+      let x = a / 500 + y;
+      let z = y - b / 200;
+
+      const x2 = Math.pow(x, 3);
+      const y2 = Math.pow(y, 3);
+      const z2 = Math.pow(z, 3);
+
+      x = (x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787) * 0.95047;
+      y = (y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787) * 1.00000;
+      z = (z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787) * 1.08883;
+
+      let r = x *  3.2406 + y * -1.5372 + z * -0.4986;
+      let g = x * -0.9689 + y *  1.8758 + z *  0.0415;
+      let bl = x *  0.0557 + y * -0.2040 + z *  1.0570;
+
+      r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : 12.92 * r;
+      g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : 12.92 * g;
+      bl = bl > 0.0031308 ? 1.055 * Math.pow(bl, 1 / 2.4) - 0.055 : 12.92 * bl;
+
+      return [
+        Math.max(0, Math.min(1, r)),
+        Math.max(0, Math.min(1, g)),
+        Math.max(0, Math.min(1, bl))
+      ];
+    }
+
+    // --- 2. DELTA E FORMÜLLERİ ---
+    function calcDeltaE76(l1, a1, b1, l2, a2, b2) {
+      return Math.sqrt(Math.pow(l2 - l1, 2) + Math.pow(a2 - a1, 2) + Math.pow(b2 - b1, 2));
+    }
+
+    function calcDeltaE00(l1, a1, b1, l2, a2, b2) {
+      const rad2deg = rad => rad * (180 / Math.PI);
+      const deg2rad = deg => deg * (Math.PI / 180);
+
+      const c1 = Math.sqrt(a1 * a1 + b1 * b1);
+      const c2 = Math.sqrt(a2 * a2 + b2 * b2);
+
+      const c_bar = (c1 + c2) / 2;
+      const g = 0.5 * (1 - Math.sqrt(Math.pow(c_bar, 7) / (Math.pow(c_bar, 7) + Math.pow(25, 7))));
+
+      const a1_prime = (1 + g) * a1;
+      const a2_prime = (1 + g) * a2;
+
+      const c1_prime = Math.sqrt(a1_prime * a1_prime + b1 * b1);
+      const c2_prime = Math.sqrt(a2_prime * a2_prime + b2 * b2);
+
+      let h1_prime = Math.atan2(b1, a1_prime);
+      if (h1_prime < 0) h1_prime += 2 * Math.PI;
+      h1_prime = rad2deg(h1_prime);
+
+      let h2_prime = Math.atan2(b2, a2_prime);
+      if (h2_prime < 0) h2_prime += 2 * Math.PI;
+      h2_prime = rad2deg(h2_prime);
+
+      const delta_L_prime = l2 - l1;
+      const delta_C_prime = c2_prime - c1_prime;
+
+      let delta_h_prime = 0;
+      if (c1_prime * c2_prime !== 0) {
+        const diff = h2_prime - h1_prime;
+        if (Math.abs(diff) <= 180) {
+          delta_h_prime = diff;
+        } else if (diff > 180) {
+          delta_h_prime = diff - 360;
+        } else {
+          delta_h_prime = diff + 360;
+        }
+      }
+
+      const delta_H_prime = 2 * Math.sqrt(c1_prime * c2_prime) * Math.sin(deg2rad(delta_h_prime / 2));
+
+      const L_bar_prime = (l1 + l2) / 2;
+      const C_bar_prime = (c1_prime + c2_prime) / 2;
+
+      let h_bar_prime = 0;
+      if (c1_prime * c2_prime !== 0) {
+        const sum = h1_prime + h2_prime;
+        if (Math.abs(h1_prime - h2_prime) <= 180) {
+          h_bar_prime = sum / 2;
+        } else {
+          if (sum < 360) {
+            h_bar_prime = (sum + 360) / 2;
+          } else {
+            h_bar_prime = (sum - 360) / 2;
+          }
+        }
+      }
+
+      const T = 1 - 0.17 * Math.cos(deg2rad(h_bar_prime - 30))
+                  + 0.24 * Math.cos(deg2rad(2 * h_bar_prime))
+                  + 0.32 * Math.cos(deg2rad(3 * h_bar_prime + 6))
+                  - 0.20 * Math.cos(deg2rad(4 * h_bar_prime - 63));
+
+      const delta_theta = 30 * Math.exp(-Math.pow((h_bar_prime - 275) / 25, 2));
+      const R_C = 2 * Math.sqrt(Math.pow(C_bar_prime, 7) / (Math.pow(C_bar_prime, 7) + Math.pow(25, 7)));
+      const S_L = 1 + (0.015 * Math.pow(L_bar_prime - 50, 2)) / Math.sqrt(20 + Math.pow(L_bar_prime - 50, 2));
+      const S_C = 1 + 0.045 * C_bar_prime;
+      const S_H = 1 + 0.015 * C_bar_prime * T;
+      const R_T = -Math.sin(deg2rad(2 * delta_theta)) * R_C;
+
+      return Math.sqrt(
+        Math.pow(delta_L_prime / S_L, 2) +
+        Math.pow(delta_C_prime / S_C, 2) +
+        Math.pow(delta_H_prime / S_H, 2) +
+        R_T * (delta_C_prime / S_C) * (delta_H_prime / S_H)
+      );
+    }
+
+    // --- 3. SAHNE & KAMERA KURULUMU ---
+    let is2DMode = false;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x101216);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.set(190, 130, 230);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // --- 4. RENK KÜRESİ VE MESH YAPISI ---
+    const radius = 90;
+    const sphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
+    const count = sphereGeometry.attributes.position.count;
+    const colors = new Float32Array(count * 3);
+    const pos = sphereGeometry.attributes.position;
+
+    for (let i = 0; i < count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+
+      const L = ((y + radius) / (2 * radius)) * 100;
+      const a = x * 1.1;
+      const b = z * 1.1;
+
+      const rgb = labToRgb(L, a, b);
+      colors[i * 3]     = rgb[0];
+      colors[i * 3 + 1] = rgb[1];
+      colors[i * 3 + 2] = rgb[2];
+    }
+
+    sphereGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const sphereMaterial = new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.35,
+      depthWrite: false
+    });
+    const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    scene.add(sphereMesh);
+
+    // Nokta Bulutu
+    const pointsMaterial = new THREE.PointsMaterial({ size: 3.5, vertexColors: true });
+    const spherePoints = new THREE.Points(sphereGeometry, pointsMaterial);
+    spherePoints.visible = false;
+    scene.add(spherePoints);
+
+    // --- 5. EKSENLER VE ETİKETLER ---
+    const axisGroup = new THREE.Group();
+
+    function createAxisLine(start, end, hexColor) {
+      const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+      const material = new THREE.LineBasicMaterial({ color: hexColor, transparent: true, opacity: 0.7 });
+      axisGroup.add(new THREE.Line(geometry, material));
+    }
+
+    createAxisLine(new THREE.Vector3(0, -115, 0), new THREE.Vector3(0, 115, 0), 0xffffff);
+    createAxisLine(new THREE.Vector3(-120, 0, 0), new THREE.Vector3(120, 0, 0), 0xff0055);
+    createAxisLine(new THREE.Vector3(0, 0, -120), new THREE.Vector3(0, 0, 120), 0xffcc00);
+
+    function createTextSprite(text, colorStr) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      ctx.font = 'Bold 26px -apple-system, sans-serif';
+      ctx.fillStyle = colorStr;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 128, 32);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
+      sprite.scale.set(32, 8, 1);
+      return sprite;
+    }
+
+    function updateSpriteText(sprite, text, colorStr) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      ctx.font = 'Bold 24px -apple-system, sans-serif';
+      ctx.fillStyle = colorStr;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 128, 32);
+
+      if (sprite.material.map) sprite.material.map.dispose();
+      sprite.material.map = new THREE.CanvasTexture(canvas);
+      sprite.material.needsUpdate = true;
+    }
+
+    function setPos(sprite, x, y, z) {
+      sprite.position.set(x, y, z);
+      return sprite;
+    }
+
+    axisGroup.add(
+      setPos(createTextSprite("+L* (100)", "#ffffff"), 0, 128, 0),
+      setPos(createTextSprite("-L* (0)", "#aaaaaa"), 0, -128, 0),
+      setPos(createTextSprite("+a* (Kırmızı)", "#ff3366"), 138, 0, 0),
+      setPos(createTextSprite("-a* (Yeşil)", "#00ff88"), -138, 0, 0),
+      setPos(createTextSprite("+b* (Sarı)", "#ffcc00"), 0, 0, 138),
+      setPos(createTextSprite("-b* (Mavi)", "#3399ff"), 0, 0, -138)
+    );
+
+    scene.add(axisGroup);
+
+    // --- 6. DİNAMİK NOKTALAR VE ETİKETLER ---
+    const pointAGroup = new THREE.Group();
+    const pointBGroup = new THREE.Group();
+
+    const baseSphereGeo = new THREE.SphereGeometry(1.0, 32, 32);
+
+    const sphereA = new THREE.Mesh(
+      baseSphereGeo,
+      new THREE.MeshBasicMaterial({ color: 0xff3333 })
+    );
+    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d");
+    pointAGroup.add(sphereA);
+    scene.add(spriteA);
+
+    const sphereB = new THREE.Mesh(
+      baseSphereGeo,
+      new THREE.MeshBasicMaterial({ color: 0x3399ff })
+    );
+    const spriteB = createTextSprite("2. Renk (B)", "#3399ff");
+    pointBGroup.add(sphereB);
+    scene.add(spriteB);
+
+    scene.add(pointAGroup);
+    scene.add(pointBGroup);
+
+    let deltaLineGeometry = new THREE.BufferGeometry();
+    let deltaLine = new THREE.Line(deltaLineGeometry, new THREE.LineDashedMaterial({
+      color: 0x00ffcc, dashSize: 2, gapSize: 1
+    }));
+    scene.add(deltaLine);
+
+    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc");
+    spriteDistance.scale.set(30, 7.5, 1);
+    scene.add(spriteDistance);
+
+    function labTo3dPos(L, a, b) {
+      const y = ((L / 100) * 2 * radius) - radius;
+      const x = a / 1.1;
+      const z = b / 1.1;
+      return new THREE.Vector3(x, y, z);
+    }
+
+    // --- 7. GERÇEK ZAMANLI GÜNCELLEME VE HESAPLAMA ---
+    function updateColorsAndDeltaE() {
+      const l1 = parseFloat(document.getElementById('l1').value) || 0;
+      const a1 = parseFloat(document.getElementById('a1').value) || 0;
+      const b1 = parseFloat(document.getElementById('b1').value) || 0;
+
+      const l2 = parseFloat(document.getElementById('l2').value) || 0;
+      const a2 = parseFloat(document.getElementById('a2').value) || 0;
+      const b2 = parseFloat(document.getElementById('b2').value) || 0;
+
+      const posA = labTo3dPos(l1, a1, b1);
+      const posB = labTo3dPos(l2, a2, b2);
+
+      pointAGroup.position.copy(posA);
+      pointBGroup.position.copy(posB);
+
+      const dirAB = posB.clone().sub(posA);
+      const dist = dirAB.length();
+
+      const dynamicRadius = Math.max(0.25, Math.min(1.8, dist * 0.25));
+      sphereA.scale.setScalar(dynamicRadius);
+      sphereB.scale.setScalar(dynamicRadius);
+
+      if (dist > 0.001) {
+        const normDir = dirAB.clone().normalize();
+
+        const offsetA = posA.clone().sub(normDir.clone().multiplyScalar(Math.max(5, dist * 0.3)));
+        offsetA.y += 3;
+        spriteA.position.copy(offsetA);
+
+        const offsetB = posB.clone().add(normDir.clone().multiplyScalar(Math.max(5, dist * 0.3)));
+        offsetB.y -= 3;
+        spriteB.position.copy(offsetB);
+
+        const midPos = posA.clone().add(posB).multiplyScalar(0.5);
+        const perpDir = new THREE.Vector3(-normDir.z, normDir.y + 1, normDir.x).normalize().multiplyScalar(4);
+        spriteDistance.position.copy(midPos).add(perpDir);
+      } else {
+        spriteA.position.copy(posA).add(new THREE.Vector3(-6, 5, 0));
+        spriteB.position.copy(posB).add(new THREE.Vector3(6, -5, 0));
+        spriteDistance.position.copy(posA).add(new THREE.Vector3(0, 8, 0));
+      }
+
+      deltaLineGeometry.dispose();
+      deltaLineGeometry = new THREE.BufferGeometry().setFromPoints([posA, posB]);
+      deltaLine.geometry = deltaLineGeometry;
+      deltaLine.computeLineDistances();
+
+      const rgb1 = labToRgb(l1, a1, b1);
+      const rgb2 = labToRgb(l2, a2, b2);
+
+      document.getElementById('prevColor1').style.backgroundColor = `rgb(${Math.round(rgb1[0]*255)}, ${Math.round(rgb1[1]*255)}, ${Math.round(rgb1[2]*255)})`;
+      document.getElementById('prevColor2').style.backgroundColor = `rgb(${Math.round(rgb2[0]*255)}, ${Math.round(rgb2[1]*255)}, ${Math.round(rgb2[2]*255)})`;
+
+      sphereA.material.color.setRGB(rgb1[0], rgb1[1], rgb1[2]);
+      sphereB.material.color.setRGB(rgb2[0], rgb2[1], rgb2[2]);
+
+      const d76 = calcDeltaE76(l1, a1, b1, l2, a2, b2);
+      const d00 = calcDeltaE00(l1, a1, b1, l2, a2, b2);
+
+      document.getElementById('valDelta76').innerText = d76.toFixed(2);
+      document.getElementById('valDelta00').innerText = d00.toFixed(2);
+
+      updateSpriteText(spriteDistance, `ΔE: ${d00.toFixed(2)}`, "#00ffcc");
+
+      document.getElementById('lblL1Val').innerText = l1;
+      document.getElementById('lblL2Val').innerText = l2;
+      document.getElementById('markerL1').style.bottom = `${l1}%`;
+      document.getElementById('markerL2').style.bottom = `${l2}%`;
+      document.getElementById('valDeltaL').innerText = Math.abs(l2 - l1).toFixed(1);
+    }
+
+    ['l1', 'a1', 'b1', 'l2', 'a2', 'b2'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateColorsAndDeltaE);
+    });
+
+    // --- 8. MİKRO ZOOM / NOKTALARA ODAKLANMA FONKSİYONU ---
+    function focusOnPoints() {
+      const l1 = parseFloat(document.getElementById('l1').value) || 0;
+      const a1 = parseFloat(document.getElementById('a1').value) || 0;
+      const b1 = parseFloat(document.getElementById('b1').value) || 0;
+      const l2 = parseFloat(document.getElementById('l2').value) || 0;
+      const a2 = parseFloat(document.getElementById('a2').value) || 0;
+      const b2 = parseFloat(document.getElementById('b2').value) || 0;
+
+      const posA = labTo3dPos(l1, a1, b1);
+      const posB = labTo3dPos(l2, a2, b2);
+
+      const mid = posA.clone().add(posB).multiplyScalar(0.5);
+      const dist = Math.max(posA.distanceTo(posB), 4);
+
+      const zoomHeight = Math.max(dist * 2.8, 18);
+
+      controls.target.copy(mid);
+
+      if (is2DMode) {
+        camera.position.set(mid.x, mid.y + zoomHeight, mid.z + 0.001);
+      } else {
+        camera.position.set(mid.x + zoomHeight * 0.8, mid.y + zoomHeight * 0.8, mid.z + zoomHeight * 0.8);
+      }
+      controls.update();
+    }
+
+    // --- 9. 2D / 3D MOD DEĞİŞTİRME ---
+    function toggle2D3D() {
+      is2DMode = !is2DMode;
+      const btn = document.getElementById('btn2D3D');
+      const panel2D = document.getElementById('panel2DL');
+      const desc = document.getElementById('modeDesc');
+
+      if (is2DMode) {
+        btn.innerText = "3D Moduna Geç";
+        btn.classList.add('active-2d');
+        panel2D.style.display = "block";
+        desc.innerHTML = "<strong>2D Modu:</strong> Tepeden a*b* renk kromatiklik düzlemine bakıyorsunuz. Sol tarafta L* (Açıklık) seviyeleri gösterilir.";
+
+        camera.position.set(0, 280, 0.001);
+        controls.target.set(0, 0, 0);
+        controls.enableRotate = false;
+        controls.update();
+      } else {
+        btn.innerText = "2D Moduna Geç";
+        btn.classList.remove('active-2d');
+        panel2D.style.display = "none";
+        desc.innerHTML = "<strong>3D Modu:</strong> Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.";
+
+        camera.position.set(190, 130, 230);
+        controls.target.set(0, 0, 0);
+        controls.enableRotate = true;
+        controls.update();
+      }
+    }
+
+    function setRenderMode(mode) {
+      document.querySelectorAll('#controls button').forEach(b => {
+        if (b.id !== 'btn2D3D') b.classList.remove('active');
+      });
+
+      if (mode === 'solid') {
+        sphereMesh.visible = true;
+        sphereMesh.material.wireframe = false;
+        spherePoints.visible = false;
+        document.getElementById('btnSolid').classList.add('active');
+      } else if (mode === 'wireframe') {
+        sphereMesh.visible = true;
+        sphereMesh.material.wireframe = true;
+        spherePoints.visible = false;
+        document.getElementById('btnWireframe').classList.add('active');
+      } else if (mode === 'points') {
+        sphereMesh.visible = false;
+        spherePoints.visible = true;
+        document.getElementById('btnPoints').classList.add('active');
+      }
+    }
+
+    function updateOpacity(val) {
+      sphereMaterial.opacity = parseFloat(val);
+    }
+
+    function resetCamera() {
+      if (is2DMode) {
+        camera.position.set(0, 280, 0.001);
+      } else {
+        camera.position.set(190, 130, 230);
+      }
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // Başlatma
+    updateColorsAndDeltaE();
+    animate();
+  </script>
+</body>
+</html>
