@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>CIE L*a*b* 3D/2D Renk Uzayı & Delta E Analizi</title>
   <style>
     * {
@@ -20,51 +20,82 @@
       color: #ffffff;
       width: 100vw;
       height: 100vh;
+      touch-action: none;
     }
 
     /* Mobil Paneli Gizleme Düğmesi */
     .btn-toggle-panel {
       display: none;
-      background: rgba(0, 153, 204, 0.9);
+      background: linear-gradient(135deg, #0099cc, #00bfff);
       color: white;
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 11px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      margin-bottom: 6px;
       width: 100%;
       text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    /* Sağ Üst Konteyner */
+    /* Sağ Üst Konteyner (Mobil Uyumlu Scroll) */
     #rightSidebar {
       position: absolute;
       top: 16px;
       right: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       z-index: 10;
-      max-height: calc(100vh - 100px);
+      max-height: calc(100vh - 120px);
       overflow-y: auto;
       transition: all 0.3s ease;
+      padding-right: 2px;
+      width: 320px;
     }
 
-    /* Sağ Üst Bilgi Paneli */
-    #infoPanel {
-      background: rgba(0, 0, 0, 0.88);
-      padding: 12px 14px;
+    #rightSidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+    #rightSidebar::-webkit-scrollbar-thumb {
+      background: rgba(0, 153, 204, 0.5);
+      border-radius: 4px;
+    }
+
+    /* Akordeon Kart Yapısı */
+    .card {
+      background: rgba(18, 22, 28, 0.92);
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(8px);
-      width: 310px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .card-header {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .card-content {
+      padding: 10px 12px;
+      display: block;
+    }
+
+    .card-content.collapsed {
+      display: none;
     }
 
     h1 {
-      font-size: 15px;
-      margin: 0 0 6px 0;
+      font-size: 14px;
       color: #0099cc;
     }
 
@@ -97,29 +128,6 @@
       border-radius: 50%;
     }
 
-    /* Delta E & Renk Giriş Paneli */
-    #analysisPanel {
-      background: rgba(18, 22, 28, 0.92);
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(0, 153, 204, 0.4);
-      backdrop-filter: blur(10px);
-      width: 310px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    }
-
-    .panel-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #00bfff;
-      margin-bottom: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
     .color-section {
       background: rgba(255, 255, 255, 0.04);
       border-radius: 8px;
@@ -141,8 +149,8 @@
     }
 
     .color-preview {
-      width: 28px;
-      height: 18px;
+      width: 32px;
+      height: 20px;
       border-radius: 4px;
       border: 1px solid #fff;
     }
@@ -165,19 +173,46 @@
       color: #aaa;
     }
 
+    /* Dokunmatik Dostu İnfaz Inputları */
     .input-group input {
       background: #1a202c;
       border: 1px solid #334155;
       color: #fff;
-      padding: 5px 4px;
-      border-radius: 4px;
-      font-size: 12px;
+      padding: 8px 4px;
+      border-radius: 6px;
+      font-size: 13px;
       width: 100%;
       text-align: center;
       font-family: monospace;
     }
 
-    /* Delta E Sonuç Kartı */
+    /* Buton Stilleri */
+    .btn-action {
+      width: 100%;
+      margin-top: 6px;
+      background: #0099cc;
+      color: white;
+      border: none;
+      padding: 9px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 11px;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn-action:active {
+      transform: scale(0.98);
+    }
+
+    .btn-random {
+      background: #8e44ad;
+    }
+
     .delta-results {
       background: linear-gradient(135deg, rgba(0,153,204,0.15) 0%, rgba(0,204,153,0.15) 100%);
       border: 1px solid #0099cc;
@@ -206,23 +241,38 @@
       color: #00ffcc;
     }
 
-    .btn-focus {
-      width: 100%;
-      margin-top: 6px;
-      background: #0099cc;
-      color: white;
-      border: none;
-      padding: 8px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 11px;
-      transition: background 0.2s;
+    /* Renk Farkı Yorum Paneli */
+    .interp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
-    .btn-focus:hover {
-      background: #00bfff;
+    .interp-item {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      line-height: 1.35;
+      border-left: 3px solid #f39c12;
     }
+
+    .interp-item strong {
+      color: #00ffcc;
+      font-family: monospace;
+    }
+
+    .shift-tag {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: bold;
+      font-size: 9.5px;
+      margin-left: 3px;
+    }
+
+    .tag-plus { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+    .tag-minus { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
 
     /* 2D Modu Dikey L* Eksen Paneli */
     #panel2DL {
@@ -234,17 +284,17 @@
       background: rgba(18, 22, 28, 0.95);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 12px;
-      padding: 14px;
-      width: 220px;
+      padding: 12px;
+      width: 180px;
       backdrop-filter: blur(10px);
       z-index: 10;
       box-shadow: 0 8px 24px rgba(0,0,0,0.6);
     }
 
     #panel2DL h3 {
-      font-size: 12px;
+      font-size: 11px;
       color: #00bfff;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       border-bottom: 1px solid #333;
       padding-bottom: 4px;
       text-align: center;
@@ -254,14 +304,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 480px;
+      height: 320px;
       position: relative;
-      margin-top: 4px;
-      padding: 0 6px;
+      padding: 0 4px;
     }
 
     .l-bar-track {
-      width: 16px;
+      width: 14px;
       height: 100%;
       background: linear-gradient(to top, #000000 0%, #888888 50%, #ffffff 100%);
       border-radius: 8px;
@@ -271,13 +320,13 @@
 
     .l-marker {
       position: absolute;
-      width: 24px;
-      height: 12px;
-      border-radius: 6px;
+      width: 20px;
+      height: 10px;
+      border-radius: 5px;
       left: 50%;
       transform: translate(-50%, 50%);
       border: 2px solid #ffffff;
-      box-shadow: 0 0 8px rgba(0,0,0,0.9);
+      box-shadow: 0 0 6px rgba(0,0,0,0.9);
       transition: bottom 0.2s ease;
     }
 
@@ -286,7 +335,7 @@
       flex-direction: column;
       justify-content: space-between;
       height: 100%;
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: bold;
     }
 
@@ -298,22 +347,24 @@
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.88);
       padding: 8px 12px;
-      border-radius: 30px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       gap: 6px;
       backdrop-filter: blur(8px);
       z-index: 10;
-      max-width: 95vw;
+      max-width: 96vw;
       box-sizing: border-box;
+      align-items: center;
+      justify-content: center;
     }
 
     button {
       background: #222;
       color: #fff;
       border: 1px solid #444;
-      padding: 6px 10px;
-      border-radius: 20px;
+      padding: 7px 11px;
+      border-radius: 16px;
       cursor: pointer;
       font-size: 11px;
       font-weight: bold;
@@ -337,25 +388,21 @@
       border-color: #2ecc71;
     }
 
-    button:hover {
-      border-color: #0099cc;
-    }
-
     .opacity-slider {
       display: flex;
       align-items: center;
       gap: 6px;
       font-size: 10px;
-      margin-left: 4px;
+      margin-left: 2px;
       border-left: 1px solid #444;
-      padding-left: 8px;
+      padding-left: 6px;
     }
 
     .opacity-slider input {
-      width: 50px;
+      width: 45px;
     }
 
-    /* --- RESPONSIVE MOBİL CSS MEDYA KURALLARI --- */
+    /* --- RESPONSIVE MOBİL UYUM (Sert Sınırlar) --- */
     @media (max-width: 768px) {
       .btn-toggle-panel {
         display: block;
@@ -366,43 +413,37 @@
         right: 10px;
         width: calc(100vw - 20px);
         max-width: 320px;
-        max-height: 55vh;
+        max-height: calc(100vh - 100px);
       }
 
-      #rightSidebar.minimized #infoPanel,
-      #rightSidebar.minimized #analysisPanel {
+      #rightSidebar.minimized .card {
         display: none;
-      }
-
-      #infoPanel, #analysisPanel {
-        width: 100%;
       }
 
       #panel2DL {
         left: 10px;
         top: auto;
-        bottom: 75px;
+        bottom: 95px;
         transform: none;
-        width: 170px;
-        padding: 10px;
+        width: 150px;
+        padding: 8px;
       }
 
       .l-axis-container {
-        height: 280px;
+        height: 200px;
       }
 
       #controls {
         bottom: 10px;
         width: 96vw;
         flex-wrap: wrap;
-        justify-content: center;
         border-radius: 16px;
         padding: 6px;
         gap: 4px;
       }
 
       button {
-        padding: 5px 8px;
+        padding: 6px 9px;
         font-size: 10px;
       }
 
@@ -426,81 +467,125 @@
   <!-- Sağ Üst Konteyner -->
   <div id="rightSidebar">
     
-    <button class="btn-toggle-panel" onclick="toggleSidebar()">📱 Paneli Gizle / Göster</button>
+    <button class="btn-toggle-panel" onclick="toggleSidebar()">📱 Panelleri Göster / Gizle</button>
 
-    <!-- Bilgi Paneli -->
-    <div id="infoPanel">
-      <h1>3D / 2D LAB Renk Uzayı</h1>
-      <p id="modeDesc">3D Modu: Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.</p>
-      
-      <div class="legend">
-        <div class="legend-item"><div class="color-dot" style="background:#ffffff; border:1px solid #666;"></div> <strong>+L* (100):</strong> Beyaz / <strong>-L* (0):</strong> Siyah</div>
-        <div class="legend-item"><div class="color-dot" style="background:#ff3366;"></div> <strong>+a*:</strong> Kırmızı / <strong>-a*:</strong> Yeşil</div>
-        <div class="legend-item"><div class="color-dot" style="background:#ffcc00;"></div> <strong>+b*:</strong> Sarı / <strong>-b*:</strong> Mavi</div>
+    <!-- Bilgi Kartı -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard('infoContent')">
+        <span style="color:#0099cc;">ℹ️ 3D / 2D LAB Renk Uzayı</span>
+        <span id="infoContentIcon">▲</span>
+      </div>
+      <div id="infoContent" class="card-content">
+        <p id="modeDesc">3D Modu: Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.</p>
+        
+        <div class="legend">
+          <div class="legend-item"><div class="color-dot" style="background:#ffffff; border:1px solid #666;"></div> <strong>+L* (100):</strong> Beyaz / <strong>-L* (0):</strong> Siyah</div>
+          <div class="legend-item"><div class="color-dot" style="background:#ff3366;"></div> <strong>+a*:</strong> Kırmızı / <strong>-a*:</strong> Yeşil</div>
+          <div class="legend-item"><div class="color-dot" style="background:#ffcc00;"></div> <strong>+b*:</strong> Sarı / <strong>-b*:</strong> Mavi</div>
+        </div>
       </div>
     </div>
 
-    <!-- Delta E Analiz Paneli -->
-    <div id="analysisPanel">
-      <div class="panel-title">
-        <span>📊 Delta E (ΔE) Analizi</span>
+    <!-- Delta E Analiz Kartı -->
+    <div class="card" style="border-color: rgba(0, 153, 204, 0.4);">
+      <div class="card-header" onclick="toggleCard('analysisContent')">
+        <span style="color:#00bfff;">📊 Delta E (ΔE) Analizi</span>
+        <span id="analysisContentIcon">▲</span>
       </div>
+      <div id="analysisContent" class="card-content">
+        
+        <button class="btn-action btn-random" onclick="generateRandomCloseColors()">
+          🎲 Rastgele Yakın Renkler Üret
+        </button>
 
-      <!-- 1. Renk -->
-      <div class="color-section">
-        <div class="color-header">
-          <span class="color-name" style="color:#ff4d4d;">🔴 1. Renk (Nokta A)</span>
-          <div id="prevColor1" class="color-preview"></div>
+        <!-- 1. Renk -->
+        <div class="color-section" style="margin-top: 8px;">
+          <div class="color-header">
+            <span class="color-name" style="color:#ff4d4d;">🔴 1. Renk / Referans (A)</span>
+            <div id="prevColor1" class="color-preview"></div>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>L*</label>
+              <input type="number" id="l1" value="55" min="0" max="100" step="1" inputmode="numeric">
+            </div>
+            <div class="input-group">
+              <label>a*</label>
+              <input type="number" id="a1" value="45" min="-128" max="127" step="1" inputmode="numeric">
+            </div>
+            <div class="input-group">
+              <label>b*</label>
+              <input type="number" id="b1" value="30" min="-128" max="127" step="1" inputmode="numeric">
+            </div>
+          </div>
         </div>
-        <div class="input-row">
-          <div class="input-group">
-            <label>L*</label>
-            <input type="number" id="l1" value="55" min="0" max="100" step="1">
+
+        <!-- 2. Renk -->
+        <div class="color-section">
+          <div class="color-header">
+            <span class="color-name" style="color:#3399ff;">🔵 2. Renk / Numune (B)</span>
+            <div id="prevColor2" class="color-preview"></div>
           </div>
-          <div class="input-group">
-            <label>a*</label>
-            <input type="number" id="a1" value="45" min="-128" max="127" step="1">
-          </div>
-          <div class="input-group">
-            <label>b*</label>
-            <input type="number" id="b1" value="30" min="-128" max="127" step="1">
+          <div class="input-row">
+            <div class="input-group">
+              <label>L*</label>
+              <input type="number" id="l2" value="54" min="0" max="100" step="1" inputmode="numeric">
+            </div>
+            <div class="input-group">
+              <label>a*</label>
+              <input type="number" id="a2" value="43" min="-128" max="127" step="1" inputmode="numeric">
+            </div>
+            <div class="input-group">
+              <label>b*</label>
+              <input type="number" id="b2" value="28" min="-128" max="127" step="1" inputmode="numeric">
+            </div>
           </div>
         </div>
+
+        <!-- Hesaplama Sonuçları -->
+        <div class="delta-results">
+          <div class="delta-row">
+            <span class="delta-label">ΔE*ab (CIE76):</span>
+            <span id="valDelta76" class="delta-val">0.00</span>
+          </div>
+          <div class="delta-row" style="margin-top:4px;">
+            <span class="delta-label">ΔE00 (CIEDE2000):</span>
+            <span id="valDelta00" class="delta-val" style="color:#00ff88; font-size:15px;">0.00</span>
+          </div>
+          <button class="btn-action" onclick="focusOnPoints()">🔍 Yakınlaş (Noktalara Odaklan)</button>
+        </div>
+
       </div>
+    </div>
 
-      <!-- 2. Renk -->
-      <div class="color-section">
-        <div class="color-header">
-          <span class="color-name" style="color:#3399ff;">🔵 2. Renk (Nokta B)</span>
-          <div id="prevColor2" class="color-preview"></div>
-        </div>
-        <div class="input-row">
-          <div class="input-group">
-            <label>L*</label>
-            <input type="number" id="l2" value="54" min="0" max="100" step="1">
-          </div>
-          <div class="input-group">
-            <label>a*</label>
-            <input type="number" id="a2" value="43" min="-128" max="127" step="1">
-          </div>
-          <div class="input-group">
-            <label>b*</label>
-            <input type="number" id="b2" value="28" min="-128" max="127" step="1">
-          </div>
-        </div>
+    <!-- Renk Farkı Yorum Kartı -->
+    <div class="card" style="border-color: rgba(230, 126, 34, 0.5);">
+      <div class="card-header" onclick="toggleCard('interpContent')">
+        <span style="color:#f39c12;">💡 L*a*b* Yön Analizi</span>
+        <span id="interpContentIcon">▲</span>
       </div>
+      <div id="interpContent" class="card-content">
+        <p style="font-size:10px; color:#aaa; margin-bottom:6px;">
+          Numunenin (2. Renk), Referansa (1. Renk) göre kayma yönü ve farkları:
+        </p>
 
-      <!-- Hesaplama Sonuçları -->
-      <div class="delta-results">
-        <div class="delta-row">
-          <span class="delta-label">ΔE*ab (CIE76):</span>
-          <span id="valDelta76" class="delta-val">0.00</span>
+        <div class="interp-list">
+          <div class="interp-item" id="interpL">
+            <strong>ΔL*: <span id="txtDL">0.0</span></strong> — <span id="descL">-</span>
+          </div>
+          <div class="interp-item" id="interpa">
+            <strong>Δa*: <span id="txtDa">0.0</span></strong> — <span id="desca">-</span>
+          </div>
+          <div class="interp-item" id="interpb">
+            <strong>Δb*: <span id="txtDb">0.0</span></strong> — <span id="descb">-</span>
+          </div>
+          <div class="interp-item" id="interpC" style="border-left-color: #00ffcc;">
+            <strong>ΔC*: <span id="txtDC">0.0</span></strong> — <span id="descC">-</span>
+          </div>
+          <div class="interp-item" id="interpEval" style="border-left-color: #0099cc; background: rgba(0, 153, 204, 0.1);">
+            <span id="descEval">-</span>
+          </div>
         </div>
-        <div class="delta-row" style="margin-top:4px;">
-          <span class="delta-label">ΔE00 (CIEDE2000):</span>
-          <span id="valDelta00" class="delta-val" style="color:#00ff88; font-size:16px;">0.00</span>
-        </div>
-        <button class="btn-focus" onclick="focusOnPoints()">🔍 Yakınlaş (Noktalara Odaklan)</button>
       </div>
     </div>
 
@@ -522,7 +607,7 @@
         <div id="markerL2" class="l-marker" style="background:#3399ff; bottom:54%;"></div>
       </div>
     </div>
-    <div style="font-size:10px; text-align:center; margin-top:8px; color:#00ffcc; font-weight:bold;">
+    <div style="font-size:10px; text-align:center; margin-top:6px; color:#00ffcc; font-weight:bold;">
       Fark (ΔL*): <span id="valDeltaL">1.0</span>
     </div>
   </div>
@@ -532,7 +617,7 @@
     <button id="btn2D3D" class="btn-toggle-2d" onclick="toggle2D3D()">2D Moduna Geç</button>
     <button id="btnSolid" class="active" onclick="setRenderMode('solid')">Saydam Küre</button>
     <button id="btnWireframe" onclick="setRenderMode('wireframe')">Tel Kafes</button>
-    <button id="btnPoints" onclick="setRenderMode('points')">Nokta Bulutu</button>
+    <button id="btnPoints" onclick="setRenderMode('points')">Noktalar</button>
     <button onclick="focusOnPoints()">🔍 Odaklan</button>
     <button onclick="resetCamera()">Sıfırla</button>
     
@@ -543,12 +628,24 @@
   </div>
 
   <script>
-    // --- MOBİL PANEL GİZLEME / GÖSTERME ---
+    // --- MOBİL AKORDEON & PANEL GİZLEME ---
     function toggleSidebar() {
       document.getElementById('rightSidebar').classList.toggle('minimized');
     }
 
-    // --- 1. CIELAB -> sRGB MATEMATİKSEL DÖNÜŞÜMÜ ---
+    function toggleCard(contentId) {
+      const el = document.getElementById(contentId);
+      const icon = document.getElementById(contentId + 'Icon');
+      if (el.classList.contains('collapsed')) {
+        el.classList.remove('collapsed');
+        icon.innerText = '▲';
+      } else {
+        el.classList.add('collapsed');
+        icon.innerText = '▼';
+      }
+    }
+
+    // --- 1. CIELAB -> sRGB DÖNÜŞÜMÜ ---
     function labToRgb(L, a, b) {
       let y = (L + 16) / 116;
       let x = a / 500 + y;
@@ -668,7 +765,7 @@
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.set(190, 130, 230);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.body.appendChild(renderer.domElement);
@@ -679,7 +776,7 @@
 
     // --- 4. RENK KÜRESİ VE MESH YAPISI ---
     const radius = 90;
-    const sphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
+    const sphereGeometry = new THREE.SphereGeometry(radius, 48, 48); // Mobil GPU optimizasyonu için segment düşürüldü
     const count = sphereGeometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
     const pos = sphereGeometry.attributes.position;
@@ -821,6 +918,81 @@
       return new THREE.Vector3(x, y, z);
     }
 
+    // --- RASTGELE YAKIN RENK ÜRETİCİ ---
+    function generateRandomCloseColors() {
+      const l1 = Math.round(25 + Math.random() * 55);
+      const a1 = Math.round(-50 + Math.random() * 100);
+      const b1 = Math.round(-50 + Math.random() * 100);
+
+      const maxDiff = 4;
+      const l2 = Math.min(100, Math.max(0, l1 + Math.round((Math.random() * 2 - 1) * maxDiff)));
+      const a2 = Math.min(127, Math.max(-128, a1 + Math.round((Math.random() * 2 - 1) * maxDiff)));
+      const b2 = Math.min(127, Math.max(-128, b1 + Math.round((Math.random() * 2 - 1) * maxDiff)));
+
+      document.getElementById('l1').value = l1;
+      document.getElementById('a1').value = a1;
+      document.getElementById('b1').value = b1;
+
+      document.getElementById('l2').value = l2;
+      document.getElementById('a2').value = a2;
+      document.getElementById('b2').value = b2;
+
+      updateColorsAndDeltaE();
+    }
+
+    // --- RENK KAYMA / FARK YORUMLAMA FONKSİYONU ---
+    function interpretColorDifference(l1, a1, b1, l2, a2, b2, d00) {
+      const dL = l2 - l1;
+      const da = a2 - a1;
+      const db = b2 - b1;
+
+      const c1 = Math.sqrt(a1 * a1 + b1 * b1);
+      const c2 = Math.sqrt(a2 * a2 + b2 * b2);
+      const dC = c2 - c1;
+
+      // 1. L* Yorumu
+      document.getElementById('txtDL').innerText = (dL >= 0 ? "+" : "") + dL.toFixed(1);
+      let descL = "";
+      if (Math.abs(dL) < 0.2) descL = "Açıklık/Koyuluk farkı yok.";
+      else if (dL > 0) descL = `Numune referanstan <span class="shift-tag tag-plus">Daha Açık</span> (+L*).`;
+      else descL = `Numune referanstan <span class="shift-tag tag-minus">Daha Koyu</span> (-L*).`;
+      document.getElementById('descL').innerHTML = descL;
+
+      // 2. a* Yorumu
+      document.getElementById('txtDa').innerText = (da >= 0 ? "+" : "") + da.toFixed(1);
+      let desca = "";
+      if (Math.abs(da) < 0.2) desca = "Kırmızı/Yeşil dengesi aynı.";
+      else if (da > 0) desca = `Numune <span class="shift-tag tag-plus">Daha Kırmızı / Az Yeşil</span> (+a*).`;
+      else desca = `Numune <span class="shift-tag tag-minus">Daha Yeşil / Az Kırmızı</span> (-a*).`;
+      document.getElementById('desca').innerHTML = desca;
+
+      // 3. b* Yorumu
+      document.getElementById('txtDb').innerText = (db >= 0 ? "+" : "") + db.toFixed(1);
+      let descb = "";
+      if (Math.abs(db) < 0.2) descb = "Sarı/Mavi dengesi aynı.";
+      else if (db > 0) descb = `Numune <span class="shift-tag tag-plus">Daha Sarı / Az Mavi</span> (+b*).`;
+      else descb = `Numune <span class="shift-tag tag-minus">Daha Mavi / Az Sarı</span> (-b*).`;
+      document.getElementById('descb').innerHTML = descb;
+
+      // 4. Chroma (C*) Yorumu
+      document.getElementById('txtDC').innerText = (dC >= 0 ? "+" : "") + dC.toFixed(1);
+      let descC = "";
+      if (Math.abs(dC) < 0.2) descC = "Canlılık / Doygunluk eşit.";
+      else if (dC > 0) descC = `Numune <span class="shift-tag tag-plus">Daha Canlı / Doygun</span> (+ΔC*).`;
+      else descC = `Numune <span class="shift-tag tag-minus">Daha Mat / Kirli</span> (-ΔC*).`;
+      document.getElementById('descC').innerHTML = descC;
+
+      // 5. Genel Değerlendirme
+      let descEval = "";
+      if (d00 < 0.5) descEval = `🎯 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Ayırt edilemez (Tam eşleşme).`;
+      else if (d00 < 1.0) descEval = `✅ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Uzman gözler zorlukla seçebilir.`;
+      else if (d00 < 2.5) descEval = `⚠️ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Yan yana fark edilebilir (Standart tolerans).`;
+      else if (d00 < 5.0) descEval = `❌ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Net olarak görülebilir renk farkı!`;
+      else descEval = `🚨 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Tamamen farklı iki ayrı ton.`;
+      
+      document.getElementById('descEval').innerHTML = descEval;
+    }
+
     // --- 7. GERÇEK ZAMANLI GÜNCELLEME VE HESAPLAMA ---
     function updateColorsAndDeltaE() {
       const l1 = parseFloat(document.getElementById('l1').value) || 0;
@@ -891,6 +1063,8 @@
       document.getElementById('markerL1').style.bottom = `${l1}%`;
       document.getElementById('markerL2').style.bottom = `${l2}%`;
       document.getElementById('valDeltaL').innerText = Math.abs(l2 - l1).toFixed(1);
+
+      interpretColorDifference(l1, a1, b1, l2, a2, b2, d00);
     }
 
     ['l1', 'a1', 'b1', 'l2', 'a2', 'b2'].forEach(id => {
