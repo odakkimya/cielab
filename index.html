@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>CIE L*a*b* 3D/2D Renk Uzayı & Delta E Analizi</title>
   <style>
     * {
@@ -26,76 +26,55 @@
     /* Mobil Paneli Gizleme Düğmesi */
     .btn-toggle-panel {
       display: none;
-      background: linear-gradient(135deg, #0099cc, #00bfff);
+      background: #0099cc;
       color: white;
       border: none;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
       font-weight: bold;
       cursor: pointer;
       width: 100%;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    /* Sağ Üst Konteyner (Mobil Uyumlu Scroll) */
+    /* Sağ Üst Konteyner (Bağımsız Scroll) */
     #rightSidebar {
       position: absolute;
       top: 16px;
       right: 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      z-index: 10;
-      max-height: calc(100vh - 120px);
+      gap: 10px;
+      z-index: 100;
+      max-height: calc(100vh - 80px);
       overflow-y: auto;
-      transition: all 0.3s ease;
-      padding-right: 2px;
       width: 320px;
+      padding-right: 4px;
     }
 
     #rightSidebar::-webkit-scrollbar {
-      width: 4px;
+      width: 5px;
     }
     #rightSidebar::-webkit-scrollbar-thumb {
-      background: rgba(0, 153, 204, 0.5);
+      background: rgba(0, 153, 204, 0.6);
       border-radius: 4px;
     }
 
-    /* Akordeon Kart Yapısı */
-    .card {
+    /* Panel Kutusu Stilleri */
+    .panel-box {
       background: rgba(18, 22, 28, 0.92);
+      padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    }
-
-    .card-header {
-      padding: 10px 12px;
-      font-size: 12px;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .card-content {
-      padding: 10px 12px;
-      display: block;
-    }
-
-    .card-content.collapsed {
-      display: none;
     }
 
     h1 {
       font-size: 14px;
+      margin: 0 0 6px 0;
       color: #0099cc;
     }
 
@@ -126,6 +105,18 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
+    }
+
+    .panel-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #00bfff;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .color-section {
@@ -173,27 +164,25 @@
       color: #aaa;
     }
 
-    /* Dokunmatik Dostu İnfaz Inputları */
     .input-group input {
       background: #1a202c;
       border: 1px solid #334155;
       color: #fff;
-      padding: 8px 4px;
+      padding: 6px 4px;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 12px;
       width: 100%;
       text-align: center;
       font-family: monospace;
     }
 
-    /* Buton Stilleri */
+    /* Action Butonları */
     .btn-action {
       width: 100%;
-      margin-top: 6px;
       background: #0099cc;
       color: white;
       border: none;
-      padding: 9px;
+      padding: 8px;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
@@ -205,14 +194,20 @@
       gap: 5px;
     }
 
-    .btn-action:active {
-      transform: scale(0.98);
+    .btn-action:hover {
+      background: #00bfff;
     }
 
     .btn-random {
       background: #8e44ad;
+      margin-bottom: 8px;
     }
 
+    .btn-random:hover {
+      background: #9b59b6;
+    }
+
+    /* Delta E Sonuç Kartı */
     .delta-results {
       background: linear-gradient(135deg, rgba(0,153,204,0.15) 0%, rgba(0,204,153,0.15) 100%);
       border: 1px solid #0099cc;
@@ -241,11 +236,12 @@
       color: #00ffcc;
     }
 
-    /* Renk Farkı Yorum Paneli */
+    /* Renk Farkı Yorum Paneli Stilleri */
     .interp-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
+      margin-top: 6px;
     }
 
     .interp-item {
@@ -271,8 +267,8 @@
       margin-left: 3px;
     }
 
-    .tag-plus { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
-    .tag-minus { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+    .tag-plus { background: rgba(46, 204, 113, 0.25); color: #2ecc71; }
+    .tag-minus { background: rgba(231, 76, 60, 0.25); color: #e74c3c; }
 
     /* 2D Modu Dikey L* Eksen Paneli */
     #panel2DL {
@@ -363,7 +359,7 @@
       background: #222;
       color: #fff;
       border: 1px solid #444;
-      padding: 7px 11px;
+      padding: 6px 10px;
       border-radius: 16px;
       cursor: pointer;
       font-size: 11px;
@@ -402,7 +398,7 @@
       width: 45px;
     }
 
-    /* --- RESPONSIVE MOBİL UYUM (Sert Sınırlar) --- */
+    /* Mobil Kurallar */
     @media (max-width: 768px) {
       .btn-toggle-panel {
         display: block;
@@ -416,7 +412,7 @@
         max-height: calc(100vh - 100px);
       }
 
-      #rightSidebar.minimized .card {
+      #rightSidebar.minimized .panel-box {
         display: none;
       }
 
@@ -469,122 +465,111 @@
     
     <button class="btn-toggle-panel" onclick="toggleSidebar()">📱 Panelleri Göster / Gizle</button>
 
-    <!-- Bilgi Kartı -->
-    <div class="card">
-      <div class="card-header" onclick="toggleCard('infoContent')">
-        <span style="color:#0099cc;">ℹ️ 3D / 2D LAB Renk Uzayı</span>
-        <span id="infoContentIcon">▲</span>
-      </div>
-      <div id="infoContent" class="card-content">
-        <p id="modeDesc">3D Modu: Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.</p>
-        
-        <div class="legend">
-          <div class="legend-item"><div class="color-dot" style="background:#ffffff; border:1px solid #666;"></div> <strong>+L* (100):</strong> Beyaz / <strong>-L* (0):</strong> Siyah</div>
-          <div class="legend-item"><div class="color-dot" style="background:#ff3366;"></div> <strong>+a*:</strong> Kırmızı / <strong>-a*:</strong> Yeşil</div>
-          <div class="legend-item"><div class="color-dot" style="background:#ffcc00;"></div> <strong>+b*:</strong> Sarı / <strong>-b*:</strong> Mavi</div>
-        </div>
+    <!-- 1. BİLGİ PANELİ -->
+    <div class="panel-box">
+      <h1>3D / 2D LAB Renk Uzayı</h1>
+      <p id="modeDesc">3D Modu: Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.</p>
+      
+      <div class="legend">
+        <div class="legend-item"><div class="color-dot" style="background:#ffffff; border:1px solid #666;"></div> <strong>+L* (100):</strong> Beyaz / <strong>-L* (0):</strong> Siyah</div>
+        <div class="legend-item"><div class="color-dot" style="background:#ff3366;"></div> <strong>+a*:</strong> Kırmızı / <strong>-a*:</strong> Yeşil</div>
+        <div class="legend-item"><div class="color-dot" style="background:#ffcc00;"></div> <strong>+b*:</strong> Sarı / <strong>-b*:</strong> Mavi</div>
       </div>
     </div>
 
-    <!-- Delta E Analiz Kartı -->
-    <div class="card" style="border-color: rgba(0, 153, 204, 0.4);">
-      <div class="card-header" onclick="toggleCard('analysisContent')">
-        <span style="color:#00bfff;">📊 Delta E (ΔE) Analizi</span>
-        <span id="analysisContentIcon">▲</span>
+    <!-- 2. DELTA E & RENK GİRİŞ PANELİ -->
+    <div class="panel-box" style="border-color: rgba(0, 153, 204, 0.4);">
+      <div class="panel-title">
+        <span>📊 Delta E (ΔE) Analizi</span>
       </div>
-      <div id="analysisContent" class="card-content">
-        
-        <button class="btn-action btn-random" onclick="generateRandomCloseColors()">
-          🎲 Rastgele Yakın Renkler Üret
-        </button>
 
-        <!-- 1. Renk -->
-        <div class="color-section" style="margin-top: 8px;">
-          <div class="color-header">
-            <span class="color-name" style="color:#ff4d4d;">🔴 1. Renk / Referans (A)</span>
-            <div id="prevColor1" class="color-preview"></div>
+      <!-- Rastgele Renk Üret Butonu -->
+      <button class="btn-action btn-random" onclick="generateRandomCloseColors()">
+        🎲 Rastgele Yakın Renkler Üret
+      </button>
+
+      <!-- 1. Renk -->
+      <div class="color-section">
+        <div class="color-header">
+          <span class="color-name" style="color:#ff4d4d;">🔴 1. Renk / Referans (A)</span>
+          <div id="prevColor1" class="color-preview"></div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>L*</label>
+            <input type="number" id="l1" value="55" min="0" max="100" step="1">
           </div>
-          <div class="input-row">
-            <div class="input-group">
-              <label>L*</label>
-              <input type="number" id="l1" value="55" min="0" max="100" step="1" inputmode="numeric">
-            </div>
-            <div class="input-group">
-              <label>a*</label>
-              <input type="number" id="a1" value="45" min="-128" max="127" step="1" inputmode="numeric">
-            </div>
-            <div class="input-group">
-              <label>b*</label>
-              <input type="number" id="b1" value="30" min="-128" max="127" step="1" inputmode="numeric">
-            </div>
+          <div class="input-group">
+            <label>a*</label>
+            <input type="number" id="a1" value="45" min="-128" max="127" step="1">
+          </div>
+          <div class="input-group">
+            <label>b*</label>
+            <input type="number" id="b1" value="30" min="-128" max="127" step="1">
           </div>
         </div>
+      </div>
 
-        <!-- 2. Renk -->
-        <div class="color-section">
-          <div class="color-header">
-            <span class="color-name" style="color:#3399ff;">🔵 2. Renk / Numune (B)</span>
-            <div id="prevColor2" class="color-preview"></div>
+      <!-- 2. Renk -->
+      <div class="color-section">
+        <div class="color-header">
+          <span class="color-name" style="color:#3399ff;">🔵 2. Renk / Numune (B)</span>
+          <div id="prevColor2" class="color-preview"></div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label>L*</label>
+            <input type="number" id="l2" value="54" min="0" max="100" step="1">
           </div>
-          <div class="input-row">
-            <div class="input-group">
-              <label>L*</label>
-              <input type="number" id="l2" value="54" min="0" max="100" step="1" inputmode="numeric">
-            </div>
-            <div class="input-group">
-              <label>a*</label>
-              <input type="number" id="a2" value="43" min="-128" max="127" step="1" inputmode="numeric">
-            </div>
-            <div class="input-group">
-              <label>b*</label>
-              <input type="number" id="b2" value="28" min="-128" max="127" step="1" inputmode="numeric">
-            </div>
+          <div class="input-group">
+            <label>a*</label>
+            <input type="number" id="a2" value="43" min="-128" max="127" step="1">
+          </div>
+          <div class="input-group">
+            <label>b*</label>
+            <input type="number" id="b2" value="28" min="-128" max="127" step="1">
           </div>
         </div>
+      </div>
 
-        <!-- Hesaplama Sonuçları -->
-        <div class="delta-results">
-          <div class="delta-row">
-            <span class="delta-label">ΔE*ab (CIE76):</span>
-            <span id="valDelta76" class="delta-val">0.00</span>
-          </div>
-          <div class="delta-row" style="margin-top:4px;">
-            <span class="delta-label">ΔE00 (CIEDE2000):</span>
-            <span id="valDelta00" class="delta-val" style="color:#00ff88; font-size:15px;">0.00</span>
-          </div>
-          <button class="btn-action" onclick="focusOnPoints()">🔍 Yakınlaş (Noktalara Odaklan)</button>
+      <!-- Delta E Sonuçları -->
+      <div class="delta-results">
+        <div class="delta-row">
+          <span class="delta-label">ΔE*ab (CIE76):</span>
+          <span id="valDelta76" class="delta-val">0.00</span>
         </div>
-
+        <div class="delta-row" style="margin-top:4px;">
+          <span class="delta-label">ΔE00 (CIEDE2000):</span>
+          <span id="valDelta00" class="delta-val" style="color:#00ff88; font-size:15px;">0.00</span>
+        </div>
+        <button class="btn-action" style="margin-top:6px;" onclick="focusOnPoints()">🔍 Yakınlaş (Noktalara Odaklan)</button>
       </div>
     </div>
 
-    <!-- Renk Farkı Yorum Kartı -->
-    <div class="card" style="border-color: rgba(230, 126, 34, 0.5);">
-      <div class="card-header" onclick="toggleCard('interpContent')">
-        <span style="color:#f39c12;">💡 L*a*b* Yön Analizi</span>
-        <span id="interpContentIcon">▲</span>
+    <!-- 3. RENK FARKI YORUM PANELİ -->
+    <div class="panel-box" style="border-color: rgba(243, 156, 18, 0.5);">
+      <div class="panel-title" style="color:#f39c12;">
+        <span>💡 L*a*b* Yön Analizi & Yorum</span>
       </div>
-      <div id="interpContent" class="card-content">
-        <p style="font-size:10px; color:#aaa; margin-bottom:6px;">
-          Numunenin (2. Renk), Referansa (1. Renk) göre kayma yönü ve farkları:
-        </p>
+      <p style="font-size:10px; color:#aaa; margin-bottom:4px;">
+        Numunenin (2. Renk), Referansa (1. Renk) göre kayma yönü ve farkları:
+      </p>
 
-        <div class="interp-list">
-          <div class="interp-item" id="interpL">
-            <strong>ΔL*: <span id="txtDL">0.0</span></strong> — <span id="descL">-</span>
-          </div>
-          <div class="interp-item" id="interpa">
-            <strong>Δa*: <span id="txtDa">0.0</span></strong> — <span id="desca">-</span>
-          </div>
-          <div class="interp-item" id="interpb">
-            <strong>Δb*: <span id="txtDb">0.0</span></strong> — <span id="descb">-</span>
-          </div>
-          <div class="interp-item" id="interpC" style="border-left-color: #00ffcc;">
-            <strong>ΔC*: <span id="txtDC">0.0</span></strong> — <span id="descC">-</span>
-          </div>
-          <div class="interp-item" id="interpEval" style="border-left-color: #0099cc; background: rgba(0, 153, 204, 0.1);">
-            <span id="descEval">-</span>
-          </div>
+      <div class="interp-list">
+        <div class="interp-item" id="interpL">
+          <strong>ΔL*: <span id="txtDL">0.0</span></strong> — <span id="descL">-</span>
+        </div>
+        <div class="interp-item" id="interpa">
+          <strong>Δa*: <span id="txtDa">0.0</span></strong> — <span id="desca">-</span>
+        </div>
+        <div class="interp-item" id="interpb">
+          <strong>Δb*: <span id="txtDb">0.0</span></strong> — <span id="descb">-</span>
+        </div>
+        <div class="interp-item" id="interpC" style="border-left-color: #00ffcc;">
+          <strong>ΔC*: <span id="txtDC">0.0</span></strong> — <span id="descC">-</span>
+        </div>
+        <div class="interp-item" id="interpEval" style="border-left-color: #0099cc; background: rgba(0, 153, 204, 0.1);">
+          <span id="descEval">-</span>
         </div>
       </div>
     </div>
@@ -628,24 +613,11 @@
   </div>
 
   <script>
-    // --- MOBİL AKORDEON & PANEL GİZLEME ---
     function toggleSidebar() {
       document.getElementById('rightSidebar').classList.toggle('minimized');
     }
 
-    function toggleCard(contentId) {
-      const el = document.getElementById(contentId);
-      const icon = document.getElementById(contentId + 'Icon');
-      if (el.classList.contains('collapsed')) {
-        el.classList.remove('collapsed');
-        icon.innerText = '▲';
-      } else {
-        el.classList.add('collapsed');
-        icon.innerText = '▼';
-      }
-    }
-
-    // --- 1. CIELAB -> sRGB DÖNÜŞÜMÜ ---
+    // 1. CIELAB -> sRGB Dönüşümü
     function labToRgb(L, a, b) {
       let y = (L + 16) / 116;
       let x = a / 500 + y;
@@ -674,7 +646,7 @@
       ];
     }
 
-    // --- 2. DELTA E FORMÜLLERİ ---
+    // 2. Delta E Formülleri
     function calcDeltaE76(l1, a1, b1, l2, a2, b2) {
       return Math.sqrt(Math.pow(l2 - l1, 2) + Math.pow(a2 - a1, 2) + Math.pow(b2 - b1, 2));
     }
@@ -757,7 +729,7 @@
       );
     }
 
-    // --- 3. SAHNE & KAMERA KURULUMU ---
+    // 3. Sahne & Kamera
     let is2DMode = false;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x101216);
@@ -774,9 +746,9 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    // --- 4. RENK KÜRESİ VE MESH YAPISI ---
+    // 4. Renk Küresi
     const radius = 90;
-    const sphereGeometry = new THREE.SphereGeometry(radius, 48, 48); // Mobil GPU optimizasyonu için segment düşürüldü
+    const sphereGeometry = new THREE.SphereGeometry(radius, 48, 48);
     const count = sphereGeometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
     const pos = sphereGeometry.attributes.position;
@@ -808,13 +780,12 @@
     const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
     scene.add(sphereMesh);
 
-    // Nokta Bulutu
     const pointsMaterial = new THREE.PointsMaterial({ size: 3.5, vertexColors: true });
     const spherePoints = new THREE.Points(sphereGeometry, pointsMaterial);
     spherePoints.visible = false;
     scene.add(spherePoints);
 
-    // --- 5. EKSENLER VE ETİKETLER ---
+    // 5. Eksenler
     const axisGroup = new THREE.Group();
 
     function createAxisLine(start, end, hexColor) {
@@ -876,7 +847,7 @@
 
     scene.add(axisGroup);
 
-    // --- 6. DİNAMİK NOKTALAR VE ETİKETLER ---
+    // 6. Dinamik Noktalar
     const pointAGroup = new THREE.Group();
     const pointBGroup = new THREE.Group();
 
@@ -918,7 +889,7 @@
       return new THREE.Vector3(x, y, z);
     }
 
-    // --- RASTGELE YAKIN RENK ÜRETİCİ ---
+    // Rastgele Yakın Renk Üretme Fonksiyonu
     function generateRandomCloseColors() {
       const l1 = Math.round(25 + Math.random() * 55);
       const a1 = Math.round(-50 + Math.random() * 100);
@@ -940,7 +911,7 @@
       updateColorsAndDeltaE();
     }
 
-    // --- RENK KAYMA / FARK YORUMLAMA FONKSİYONU ---
+    // Renk Yorumlama ve Yön Analizi
     function interpretColorDifference(l1, a1, b1, l2, a2, b2, d00) {
       const dL = l2 - l1;
       const da = a2 - a1;
@@ -950,7 +921,7 @@
       const c2 = Math.sqrt(a2 * a2 + b2 * b2);
       const dC = c2 - c1;
 
-      // 1. L* Yorumu
+      // L* Yorumu
       document.getElementById('txtDL').innerText = (dL >= 0 ? "+" : "") + dL.toFixed(1);
       let descL = "";
       if (Math.abs(dL) < 0.2) descL = "Açıklık/Koyuluk farkı yok.";
@@ -958,7 +929,7 @@
       else descL = `Numune referanstan <span class="shift-tag tag-minus">Daha Koyu</span> (-L*).`;
       document.getElementById('descL').innerHTML = descL;
 
-      // 2. a* Yorumu
+      // a* Yorumu
       document.getElementById('txtDa').innerText = (da >= 0 ? "+" : "") + da.toFixed(1);
       let desca = "";
       if (Math.abs(da) < 0.2) desca = "Kırmızı/Yeşil dengesi aynı.";
@@ -966,7 +937,7 @@
       else desca = `Numune <span class="shift-tag tag-minus">Daha Yeşil / Az Kırmızı</span> (-a*).`;
       document.getElementById('desca').innerHTML = desca;
 
-      // 3. b* Yorumu
+      // b* Yorumu
       document.getElementById('txtDb').innerText = (db >= 0 ? "+" : "") + db.toFixed(1);
       let descb = "";
       if (Math.abs(db) < 0.2) descb = "Sarı/Mavi dengesi aynı.";
@@ -974,7 +945,7 @@
       else descb = `Numune <span class="shift-tag tag-minus">Daha Mavi / Az Sarı</span> (-b*).`;
       document.getElementById('descb').innerHTML = descb;
 
-      // 4. Chroma (C*) Yorumu
+      // C* Yorumu
       document.getElementById('txtDC').innerText = (dC >= 0 ? "+" : "") + dC.toFixed(1);
       let descC = "";
       if (Math.abs(dC) < 0.2) descC = "Canlılık / Doygunluk eşit.";
@@ -982,18 +953,18 @@
       else descC = `Numune <span class="shift-tag tag-minus">Daha Mat / Kirli</span> (-ΔC*).`;
       document.getElementById('descC').innerHTML = descC;
 
-      // 5. Genel Değerlendirme
+      // Genel Algılanabilirlik Değerlendirmesi
       let descEval = "";
-      if (d00 < 0.5) descEval = `🎯 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Ayırt edilemez (Tam eşleşme).`;
-      else if (d00 < 1.0) descEval = `✅ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Uzman gözler zorlukla seçebilir.`;
+      if (d00 < 0.5) descEval = `🎯 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> İnsan gözüyle ayırt edilemez (Tam eşleşme).`;
+      else if (d00 < 1.0) descEval = `✅ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Eğitimli gözler zorlukla seçebilir.`;
       else if (d00 < 2.5) descEval = `⚠️ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Yan yana fark edilebilir (Standart tolerans).`;
       else if (d00 < 5.0) descEval = `❌ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Net olarak görülebilir renk farkı!`;
-      else descEval = `🚨 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Tamamen farklı iki ayrı ton.`;
+      else descEval = `🚨 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Tamamen farklı iki ayrı renk tonu.`;
       
       document.getElementById('descEval').innerHTML = descEval;
     }
 
-    // --- 7. GERÇEK ZAMANLI GÜNCELLEME VE HESAPLAMA ---
+    // 7. Güncelleme Fonksiyonu
     function updateColorsAndDeltaE() {
       const l1 = parseFloat(document.getElementById('l1').value) || 0;
       const a1 = parseFloat(document.getElementById('a1').value) || 0;
@@ -1071,7 +1042,7 @@
       document.getElementById(id).addEventListener('input', updateColorsAndDeltaE);
     });
 
-    // --- 8. MİKRO ZOOM / NOKTALARA ODAKLANMA FONKSİYONU ---
+    // 8. Kamerayı Noktalara Odaklama
     function focusOnPoints() {
       const l1 = parseFloat(document.getElementById('l1').value) || 0;
       const a1 = parseFloat(document.getElementById('a1').value) || 0;
@@ -1098,7 +1069,7 @@
       controls.update();
     }
 
-    // --- 9. 2D / 3D MOD DEĞİŞTİRME ---
+    // 9. Mod ve Render Fonksiyonları
     function toggle2D3D() {
       is2DMode = !is2DMode;
       const btn = document.getElementById('btn2D3D');
@@ -1177,7 +1148,7 @@
       renderer.render(scene, camera);
     }
 
-    // Başlatma
+    // Başlat
     updateColorsAndDeltaE();
     animate();
   </script>
