@@ -793,7 +793,7 @@
 
     // 6. Eksen Çizgileri ve Etiket Kaydı
     const axisGroup = new THREE.Group();
-    const allSprites = []; // Etiketlerin takip listesi
+    const allSprites = [];
 
     function createAxisLine(start, end, hexColor) {
       const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
@@ -805,12 +805,12 @@
     createAxisLine(new THREE.Vector3(0, -120, 0), new THREE.Vector3(0, 120, 0), 0xffcc00);
     createAxisLine(new THREE.Vector3(0, 0, -115), new THREE.Vector3(0, 0, 115), 0xffffff);
 
-    function createTextSprite(text, colorStr, baseWidth = 32, baseHeight = 8) {
+    function createTextSprite(text, colorStr, baseWidth = 24, baseHeight = 6) {
       const canvas = document.createElement('canvas');
       canvas.width = 256;
       canvas.height = 64;
       const ctx = canvas.getContext('2d');
-      ctx.font = 'Bold 26px -apple-system, sans-serif';
+      ctx.font = 'Bold 24px -apple-system, sans-serif';
       ctx.fillStyle = colorStr;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -835,7 +835,7 @@
       canvas.width = 256;
       canvas.height = 64;
       const ctx = canvas.getContext('2d');
-      ctx.font = 'Bold 24px -apple-system, sans-serif';
+      ctx.font = 'Bold 22px -apple-system, sans-serif';
       ctx.fillStyle = colorStr;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -847,7 +847,7 @@
     }
 
     function addAxisLabel(text, colorStr, x, y, z) {
-      const sprite = createTextSprite(text, colorStr, 28, 7);
+      const sprite = createTextSprite(text, colorStr, 22, 5.5);
       sprite.userData.anchorPos.set(x, y, z);
       sprite.position.set(x, y, z);
       axisGroup.add(sprite);
@@ -863,12 +863,13 @@
 
     scene.add(axisGroup);
 
-    // 7. Yüksek Kontrastlı Dinamik Renk Noktaları (A ve B)
+    // 7. ZARİF VE KÜÇÜK RENK İŞARET NOKTALARI (A ve B)
     const pointAGroup = new THREE.Group();
     const pointBGroup = new THREE.Group();
 
-    // Nokta A Yapısı (İç Renkli Küre + Beyaz Kontur Küre)
     const baseSphereGeo = new THREE.SphereGeometry(1.0, 32, 32);
+    
+    // Nokta A
     const sphereA = new THREE.Mesh(
       baseSphereGeo,
       new THREE.MeshBasicMaterial({ color: 0xff3333, depthTest: false })
@@ -883,10 +884,10 @@
     pointAGroup.add(outlineA);
     pointAGroup.add(sphereA);
 
-    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 30, 7.5);
+    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 22, 5.5);
     scene.add(spriteA);
 
-    // Nokta B Yapısı (İç Renkli Küre + Beyaz Kontur Küre)
+    // Nokta B
     const sphereB = new THREE.Mesh(
       baseSphereGeo,
       new THREE.MeshBasicMaterial({ color: 0x3399ff, depthTest: false })
@@ -901,20 +902,20 @@
     pointBGroup.add(outlineB);
     pointBGroup.add(sphereB);
 
-    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 30, 7.5);
+    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 22, 5.5);
     scene.add(spriteB);
 
     scene.add(pointAGroup);
     scene.add(pointBGroup);
 
-    // 8. Sabit Ekran Kalınlıklı Net Bağlantı Silindiri (Delta E Çizgisi)
+    // 8. İNCE VE NET İŞARET ÇİZGİSİ (Delta E Vektörü)
     const deltaCylinderGeo = new THREE.CylinderGeometry(1, 1, 1, 12);
     const deltaCylinderMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc, depthTest: false });
     const deltaCylinder = new THREE.Mesh(deltaCylinderGeo, deltaCylinderMat);
     deltaCylinder.renderOrder = 996;
     scene.add(deltaCylinder);
 
-    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 28, 7);
+    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 20, 5);
     scene.add(spriteDistance);
 
     let currentPosA = new THREE.Vector3();
@@ -1002,24 +1003,25 @@
       const dirAB = currentPosB.clone().sub(currentPosA);
       const dist = dirAB.length();
 
+      // Etiketleri noktalardan daha uzağa iterek netlik sağlama
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
-        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
-        offsetA.y += 2;
+        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(6, dist * 0.3)));
+        offsetA.y += 4;
         spriteA.userData.anchorPos.copy(offsetA);
 
-        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
-        offsetB.y -= 2;
+        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(6, dist * 0.3)));
+        offsetB.y -= 4;
         spriteB.userData.anchorPos.copy(offsetB);
 
         const midPos = currentPosA.clone().add(currentPosB).multiplyScalar(0.5);
-        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(4);
+        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(7);
         spriteDistance.userData.anchorPos.copy(midPos).add(perpDir);
       } else {
-        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-6, 5, 0));
-        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(6, -5, 0));
-        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 8, 0));
+        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-8, 6, 0));
+        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(8, -6, 0));
+        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 10, 0));
       }
 
       const rgb1 = labToRgb(l1, a1, b1);
@@ -1079,16 +1081,16 @@
       controls.update();
     }
 
-    // 11. DİNAMİK SABİTLENMİŞ BOYUTLAR & ÇAKIŞMA ÖNLEME (CONSTANT SCREEN SIZE)
+    // 11. HASSAS VE KÜÇÜK BOYUTLANDIRMA (SCREEN-SPACE SCALING)
     function updateObjectScreenSizes() {
-      // A. Nokta Çaplarını Sabit Piksel Boyutunda Tut
+      // A. Noktaları Küçük ve Zarif Tut (Önceki 0.016 katsayısı 0.0055'e düşürüldü)
       const distA = camera.position.distanceTo(pointAGroup.position);
       const distB = camera.position.distanceTo(pointBGroup.position);
-      const pointFactor = 0.016; // Ekranda sabit ~14px görünüm
+      const pointFactor = 0.0055; // Ekranda ~6px zarif boyut
       pointAGroup.scale.setScalar(distA * pointFactor);
       pointBGroup.scale.setScalar(distB * pointFactor);
 
-      // B. İki Nokta Arasındaki Çizgiyi (Silindiri) Sabit Piksel Kalınlığında Tut
+      // B. Bağlantı Silindirini İnce Yap
       const distAB = currentPosA.distanceTo(currentPosB);
       if (distAB < 0.001) {
         deltaCylinder.visible = false;
@@ -1097,19 +1099,17 @@
         const mid = currentPosA.clone().add(currentPosB).multiplyScalar(0.5);
         deltaCylinder.position.copy(mid);
 
-        // Silindir yönlendirmesi
         deltaCylinder.quaternion.setFromUnitVectors(
           new THREE.Vector3(0, 1, 0),
           currentPosB.clone().sub(currentPosA).normalize()
         );
 
-        // Çizgi kalınlığı kameraya olan mesafeyle sabitleştirilir
         const camDist = camera.position.distanceTo(mid);
-        const lineRadius = Math.max(0.15, camDist * 0.0028);
+        const lineRadius = Math.max(0.08, camDist * 0.0011); // İnce çizgi
         deltaCylinder.scale.set(lineRadius, distAB, lineRadius);
       }
 
-      // C. Tüm Etiket Yazılarını Sabit Piksel Boyutunda Tut ve Çakışmayı Önle
+      // C. Etiket Yazılarını Dengeli Ölçeklendir
       const widthHalf = window.innerWidth / 2;
       const heightHalf = window.innerHeight / 2;
       const tempVec = new THREE.Vector3();
@@ -1120,7 +1120,7 @@
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
         
-        const factor = is2DMode ? 0.0032 : 0.0035;
+        const factor = is2DMode ? 0.0028 : 0.0030;
         const scaleVal = dist * factor;
         
         sprite.scale.set(
@@ -1129,14 +1129,13 @@
           1
         );
 
-        // 2D Ekran İzdüşümü
         tempVec.copy(anchor).project(camera);
         sprite.userData.screenX = (tempVec.x * widthHalf) + widthHalf;
         sprite.userData.screenY = -(tempVec.y * heightHalf) + heightHalf;
         sprite.userData.screenOffset.set(0, 0);
       });
 
-      // Dinamik Etiketlerde Çakışma Önleme
+      // D. Çakışma Önleme (Etiketler Ayrıştırma)
       const dynamicLabels = [spriteA, spriteB, spriteDistance];
       for (let i = 0; i < dynamicLabels.length; i++) {
         for (let j = i + 1; j < dynamicLabels.length; j++) {
@@ -1146,18 +1145,18 @@
           const dx = (s2.userData.screenX + s2.userData.screenOffset.x) - (s1.userData.screenX + s1.userData.screenOffset.x);
           const dy = (s2.userData.screenY + s2.userData.screenOffset.y) - (s1.userData.screenY + s1.userData.screenOffset.y);
           
-          const minDistX = 75;
-          const minDistY = 28;
+          const minDistX = 65;
+          const minDistY = 24;
 
           if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
             const overlapY = (minDistY - Math.abs(dy)) * (dy >= 0 ? 1 : -1);
-            s2.userData.screenOffset.y += overlapY * 0.6;
-            s1.userData.screenOffset.y -= overlapY * 0.6;
+            s2.userData.screenOffset.y += overlapY * 0.65;
+            s1.userData.screenOffset.y -= overlapY * 0.65;
           }
         }
       }
 
-      // Ofsetleri 3B Dünya Konumuna Yansıt
+      // E. Offsetleri Dünyaya Yansıt
       const rightVec = new THREE.Vector3();
       const upVec = new THREE.Vector3();
       camera.matrixWorld.extractBasis(rightVec, upVec, tempVec);
@@ -1167,7 +1166,7 @@
 
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
-        const pixelToWorld = (dist * 0.0018);
+        const pixelToWorld = (dist * 0.0016);
 
         sprite.position.copy(anchor)
           .addScaledVector(rightVec, sprite.userData.screenOffset.x * pixelToWorld)
@@ -1251,11 +1250,11 @@
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
-      updateObjectScreenSizes(); // Nesne, çizgi ve etiketlerin ekran boyutunu sabitle ve çakışmayı önle
+      updateObjectScreenSizes();
       renderer.render(scene, camera);
     }
 
-    // Başlat 111111
+    // Başlat
     updateColorsAndDeltaE();
     animate();
   </script>
