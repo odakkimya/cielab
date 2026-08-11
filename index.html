@@ -468,12 +468,12 @@
     <!-- 1. BİLGİ PANELİ -->
     <div class="panel-box">
       <h1>3D / 2D LAB Renk Uzayı</h1>
-      <p id="modeDesc">3D Modu: Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.</p>
+      <p id="modeDesc">3D Modu: Dikey eksen <strong>b*</strong>, Yatay eksen <strong>a*</strong>, Derinlik ekseni <strong>L*</strong> (Ekrana dik) olarak hizalanmıştır.</p>
       
       <div class="legend">
-        <div class="legend-item"><div class="color-dot" style="background:#ffffff; border:1px solid #666;"></div> <strong>+L* (100):</strong> Beyaz / <strong>-L* (0):</strong> Siyah</div>
-        <div class="legend-item"><div class="color-dot" style="background:#ff3366;"></div> <strong>+a*:</strong> Kırmızı / <strong>-a*:</strong> Yeşil</div>
-        <div class="legend-item"><div class="color-dot" style="background:#ffcc00;"></div> <strong>+b*:</strong> Sarı / <strong>-b*:</strong> Mavi</div>
+        <div class="legend-item"><div class="color-dot" style="background:#ff3366;"></div> <strong>Yatay (X):</strong> +a* (Kırmızı) / -a* (Yeşil)</div>
+        <div class="legend-item"><div class="color-dot" style="background:#ffcc00;"></div> <strong>Dikey (Y):</strong> +b* (Sarı) / -b* (Mavi)</div>
+        <div class="legend-item"><div class="color-dot" style="background:#ffffff; border:1px solid #666;"></div> <strong>Derinlik (Z):</strong> +L* (100) / -L* (0)</div>
       </div>
     </div>
 
@@ -564,9 +564,6 @@
         </div>
         <div class="interp-item" id="interpb">
           <strong>Δb*: <span id="txtDb">0.0</span></strong> — <span id="descb">-</span>
-        </div>
-        <div class="interp-item" id="interpC" style="border-left-color: #00ffcc;">
-          <strong>ΔC*: <span id="txtDC">0.0</span></strong> — <span id="descC">-</span>
         </div>
         <div class="interp-item" id="interpEval" style="border-left-color: #0099cc; background: rgba(0, 153, 204, 0.1);">
           <span id="descEval">-</span>
@@ -729,13 +726,13 @@
       );
     }
 
-    // 3. Sahne & Kamera
+    // 3. Sahne & Kamera Kurulumu
     let is2DMode = false;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x101216);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.set(190, 130, 230);
+    camera.position.set(40, 30, 250);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -746,8 +743,17 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    // 4. Renk Küresi
+    // 4. LAB -> 3D Dünya Koordinat Dönüşümü
     const radius = 90;
+
+    function labTo3dPos(L, a, b) {
+      const x = a / 1.1;
+      const y = b / 1.1;
+      const z = ((L / 100) * 2 * radius) - radius;
+      return new THREE.Vector3(x, y, z);
+    }
+
+    // 5. Renk Küresi Oluşturma
     const sphereGeometry = new THREE.SphereGeometry(radius, 48, 48);
     const count = sphereGeometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
@@ -758,9 +764,9 @@
       const y = pos.getY(i);
       const z = pos.getZ(i);
 
-      const L = ((y + radius) / (2 * radius)) * 100;
       const a = x * 1.1;
-      const b = z * 1.1;
+      const b = y * 1.1;
+      const L = ((z + radius) / (2 * radius)) * 100;
 
       const rgb = labToRgb(L, a, b);
       colors[i * 3]     = rgb[0];
@@ -785,8 +791,9 @@
     spherePoints.visible = false;
     scene.add(spherePoints);
 
-    // 5. Eksenler
+    // 6. Eksen Çizgileri ve Etiket Kaydı
     const axisGroup = new THREE.Group();
+    const allSprites = []; // Etiketlerin takip listesi
 
     function createAxisLine(start, end, hexColor) {
       const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
@@ -794,11 +801,11 @@
       axisGroup.add(new THREE.Line(geometry, material));
     }
 
-    createAxisLine(new THREE.Vector3(0, -115, 0), new THREE.Vector3(0, 115, 0), 0xffffff);
     createAxisLine(new THREE.Vector3(-120, 0, 0), new THREE.Vector3(120, 0, 0), 0xff0055);
-    createAxisLine(new THREE.Vector3(0, 0, -120), new THREE.Vector3(0, 0, 120), 0xffcc00);
+    createAxisLine(new THREE.Vector3(0, -120, 0), new THREE.Vector3(0, 120, 0), 0xffcc00);
+    createAxisLine(new THREE.Vector3(0, 0, -115), new THREE.Vector3(0, 0, 115), 0xffffff);
 
-    function createTextSprite(text, colorStr) {
+    function createTextSprite(text, colorStr, baseWidth = 32, baseHeight = 8) {
       const canvas = document.createElement('canvas');
       canvas.width = 256;
       canvas.height = 64;
@@ -810,8 +817,18 @@
       ctx.fillText(text, 128, 32);
 
       const texture = new THREE.CanvasTexture(canvas);
-      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
-      sprite.scale.set(32, 8, 1);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
+      
+      // Büyüklük referans özellikleri
+      sprite.userData = {
+        baseWidth: baseWidth,
+        baseHeight: baseHeight,
+        anchorPos: new THREE.Vector3(), // Temel 3B pozisyonu
+        screenOffset: new THREE.Vector2(0, 0), // Çakışma önleyici piksel kayması
+        boxWidth: baseWidth * 3.5,
+        boxHeight: baseHeight * 3.5
+      };
+      allSprites.push(sprite);
       return sprite;
     }
 
@@ -831,23 +848,24 @@
       sprite.material.needsUpdate = true;
     }
 
-    function setPos(sprite, x, y, z) {
+    function addAxisLabel(text, colorStr, x, y, z) {
+      const sprite = createTextSprite(text, colorStr, 28, 7);
+      sprite.userData.anchorPos.set(x, y, z);
       sprite.position.set(x, y, z);
+      axisGroup.add(sprite);
       return sprite;
     }
 
-    axisGroup.add(
-      setPos(createTextSprite("+L* (100)", "#ffffff"), 0, 128, 0),
-      setPos(createTextSprite("-L* (0)", "#aaaaaa"), 0, -128, 0),
-      setPos(createTextSprite("+a* (Kırmızı)", "#ff3366"), 138, 0, 0),
-      setPos(createTextSprite("-a* (Yeşil)", "#00ff88"), -138, 0, 0),
-      setPos(createTextSprite("+b* (Sarı)", "#ffcc00"), 0, 0, 138),
-      setPos(createTextSprite("-b* (Mavi)", "#3399ff"), 0, 0, -138)
-    );
+    addAxisLabel("+a* (Kırmızı)", "#ff3366", 138, 0, 0);
+    addAxisLabel("-a* (Yeşil)", "#00ff88", -138, 0, 0);
+    addAxisLabel("+b* (Sarı)", "#ffcc00", 0, 138, 0);
+    addAxisLabel("-b* (Mavi)", "#3399ff", 0, -138, 0);
+    addAxisLabel("+L* (100)", "#ffffff", 0, 0, 128);
+    addAxisLabel("-L* (0)", "#aaaaaa", 0, 0, -128);
 
     scene.add(axisGroup);
 
-    // 6. Dinamik Noktalar
+    // 7. Dinamik Noktalar
     const pointAGroup = new THREE.Group();
     const pointBGroup = new THREE.Group();
 
@@ -857,7 +875,7 @@
       baseSphereGeo,
       new THREE.MeshBasicMaterial({ color: 0xff3333 })
     );
-    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d");
+    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 30, 7.5);
     pointAGroup.add(sphereA);
     scene.add(spriteA);
 
@@ -865,7 +883,7 @@
       baseSphereGeo,
       new THREE.MeshBasicMaterial({ color: 0x3399ff })
     );
-    const spriteB = createTextSprite("2. Renk (B)", "#3399ff");
+    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 30, 7.5);
     pointBGroup.add(sphereB);
     scene.add(spriteB);
 
@@ -878,16 +896,8 @@
     }));
     scene.add(deltaLine);
 
-    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc");
-    spriteDistance.scale.set(30, 7.5, 1);
+    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 28, 7);
     scene.add(spriteDistance);
-
-    function labTo3dPos(L, a, b) {
-      const y = ((L / 100) * 2 * radius) - radius;
-      const x = a / 1.1;
-      const z = b / 1.1;
-      return new THREE.Vector3(x, y, z);
-    }
 
     // Rastgele Yakın Renk Üretme Fonksiyonu
     function generateRandomCloseColors() {
@@ -917,11 +927,7 @@
       const da = a2 - a1;
       const db = b2 - b1;
 
-      const c1 = Math.sqrt(a1 * a1 + b1 * b1);
-      const c2 = Math.sqrt(a2 * a2 + b2 * b2);
-      const dC = c2 - c1;
-
-      // L* Yorumu
+      // 1. L* Yorumu
       document.getElementById('txtDL').innerText = (dL >= 0 ? "+" : "") + dL.toFixed(1);
       let descL = "";
       if (Math.abs(dL) < 0.2) descL = "Açıklık/Koyuluk farkı yok.";
@@ -929,7 +935,7 @@
       else descL = `Numune referanstan <span class="shift-tag tag-minus">Daha Koyu</span> (-L*).`;
       document.getElementById('descL').innerHTML = descL;
 
-      // a* Yorumu
+      // 2. a* Yorumu
       document.getElementById('txtDa').innerText = (da >= 0 ? "+" : "") + da.toFixed(1);
       let desca = "";
       if (Math.abs(da) < 0.2) desca = "Kırmızı/Yeşil dengesi aynı.";
@@ -937,7 +943,7 @@
       else desca = `Numune <span class="shift-tag tag-minus">Daha Yeşil / Az Kırmızı</span> (-a*).`;
       document.getElementById('desca').innerHTML = desca;
 
-      // b* Yorumu
+      // 3. b* Yorumu
       document.getElementById('txtDb').innerText = (db >= 0 ? "+" : "") + db.toFixed(1);
       let descb = "";
       if (Math.abs(db) < 0.2) descb = "Sarı/Mavi dengesi aynı.";
@@ -945,15 +951,7 @@
       else descb = `Numune <span class="shift-tag tag-minus">Daha Mavi / Az Sarı</span> (-b*).`;
       document.getElementById('descb').innerHTML = descb;
 
-      // C* Yorumu
-      document.getElementById('txtDC').innerText = (dC >= 0 ? "+" : "") + dC.toFixed(1);
-      let descC = "";
-      if (Math.abs(dC) < 0.2) descC = "Canlılık / Doygunluk eşit.";
-      else if (dC > 0) descC = `Numune <span class="shift-tag tag-plus">Daha Canlı / Doygun</span> (+ΔC*).`;
-      else descC = `Numune <span class="shift-tag tag-minus">Daha Mat / Kirli</span> (-ΔC*).`;
-      document.getElementById('descC').innerHTML = descC;
-
-      // Genel Algılanabilirlik Değerlendirmesi
+      // 4. Genel Algılanabilirlik Değerlendirmesi
       let descEval = "";
       if (d00 < 0.5) descEval = `🎯 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> İnsan gözüyle ayırt edilemez (Tam eşleşme).`;
       else if (d00 < 1.0) descEval = `✅ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Eğitimli gözler zorlukla seçebilir.`;
@@ -964,7 +962,7 @@
       document.getElementById('descEval').innerHTML = descEval;
     }
 
-    // 7. Güncelleme Fonksiyonu
+    // 8. Güncelleme Fonksiyonu
     function updateColorsAndDeltaE() {
       const l1 = parseFloat(document.getElementById('l1').value) || 0;
       const a1 = parseFloat(document.getElementById('a1').value) || 0;
@@ -990,21 +988,21 @@
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
-        const offsetA = posA.clone().sub(normDir.clone().multiplyScalar(Math.max(5, dist * 0.3)));
-        offsetA.y += 3;
-        spriteA.position.copy(offsetA);
+        const offsetA = posA.clone().sub(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
+        offsetA.y += 2;
+        spriteA.userData.anchorPos.copy(offsetA);
 
-        const offsetB = posB.clone().add(normDir.clone().multiplyScalar(Math.max(5, dist * 0.3)));
-        offsetB.y -= 3;
-        spriteB.position.copy(offsetB);
+        const offsetB = posB.clone().add(normDir.clone().multiplyScalar(Math.max(4, dist * 0.2)));
+        offsetB.y -= 2;
+        spriteB.userData.anchorPos.copy(offsetB);
 
         const midPos = posA.clone().add(posB).multiplyScalar(0.5);
-        const perpDir = new THREE.Vector3(-normDir.z, normDir.y + 1, normDir.x).normalize().multiplyScalar(4);
-        spriteDistance.position.copy(midPos).add(perpDir);
+        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(4);
+        spriteDistance.userData.anchorPos.copy(midPos).add(perpDir);
       } else {
-        spriteA.position.copy(posA).add(new THREE.Vector3(-6, 5, 0));
-        spriteB.position.copy(posB).add(new THREE.Vector3(6, -5, 0));
-        spriteDistance.position.copy(posA).add(new THREE.Vector3(0, 8, 0));
+        spriteA.userData.anchorPos.copy(posA).add(new THREE.Vector3(-6, 5, 0));
+        spriteB.userData.anchorPos.copy(posB).add(new THREE.Vector3(6, -5, 0));
+        spriteDistance.userData.anchorPos.copy(posA).add(new THREE.Vector3(0, 8, 0));
       }
 
       deltaLineGeometry.dispose();
@@ -1042,7 +1040,7 @@
       document.getElementById(id).addEventListener('input', updateColorsAndDeltaE);
     });
 
-    // 8. Kamerayı Noktalara Odaklama
+    // 9. Kamerayı Noktalara Odaklama
     function focusOnPoints() {
       const l1 = parseFloat(document.getElementById('l1').value) || 0;
       const a1 = parseFloat(document.getElementById('a1').value) || 0;
@@ -1062,14 +1060,86 @@
       controls.target.copy(mid);
 
       if (is2DMode) {
-        camera.position.set(mid.x, mid.y + zoomHeight, mid.z + 0.001);
+        camera.position.set(mid.x, mid.y, mid.z + zoomHeight);
       } else {
-        camera.position.set(mid.x + zoomHeight * 0.8, mid.y + zoomHeight * 0.8, mid.z + zoomHeight * 0.8);
+        camera.position.set(mid.x + zoomHeight * 0.4, mid.y + zoomHeight * 0.3, mid.z + zoomHeight * 0.9);
       }
       controls.update();
     }
 
-    // 9. Mod ve Render Fonksiyonları
+    // 10. SABİT PİKSEL BOYUTU VE DİNAMİK ÇAKIŞMA ÖNLEME (COLLISION AVOIDANCE)
+    function updateSpriteScalesAndPositions() {
+      const widthHalf = window.innerWidth / 2;
+      const heightHalf = window.innerHeight / 2;
+      const tempVec = new THREE.Vector3();
+
+      // Step A: Kameraya göre sabit piksel boyutu ayarla ve ekran (2D) koordinatlarını hesapla
+      allSprites.forEach(sprite => {
+        if (!sprite.visible) return;
+
+        // 1. Sabit boyut ölçeklendirmesi
+        const anchor = sprite.userData.anchorPos;
+        const dist = camera.position.distanceTo(anchor);
+        
+        // Kamera yaklaşınca büyümemesi için sabit açı oranı
+        const factor = is2DMode ? 0.0035 : 0.0038;
+        const scaleVal = dist * factor;
+        
+        sprite.scale.set(
+          sprite.userData.baseWidth * scaleVal,
+          sprite.userData.baseHeight * scaleVal,
+          1
+        );
+
+        // 2. 2D Ekran Koordinatı
+        tempVec.copy(anchor).project(camera);
+        sprite.userData.screenX = (tempVec.x * widthHalf) + widthHalf;
+        sprite.userData.screenY = -(tempVec.y * heightHalf) + heightHalf;
+        sprite.userData.screenOffset.set(0, 0); // Reset offset
+      });
+
+      // Step B: Öncelikli Etiketlerde 2D Çakışma Kontrolü (A, B ve ΔE etiketleri)
+      const dynamicLabels = [spriteA, spriteB, spriteDistance];
+      
+      for (let i = 0; i < dynamicLabels.length; i++) {
+        for (let j = i + 1; j < dynamicLabels.length; j++) {
+          const s1 = dynamicLabels[i];
+          const s2 = dynamicLabels[j];
+
+          const dx = (s2.userData.screenX + s2.userData.screenOffset.x) - (s1.userData.screenX + s1.userData.screenOffset.x);
+          const dy = (s2.userData.screenY + s2.userData.screenOffset.y) - (s1.userData.screenY + s1.userData.screenOffset.y);
+          
+          const minDistX = 75; // Piksel cinsinden minimum x mesafesi
+          const minDistY = 28; // Piksel cinsinden minimum y mesafesi
+
+          if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
+            // Çakışma var: Etiketleri dikey/yatay düzlemde zıt yönlere it
+            const overlapY = (minDistY - Math.abs(dy)) * (dy >= 0 ? 1 : -1);
+            s2.userData.screenOffset.y += overlapY * 0.6;
+            s1.userData.screenOffset.y -= overlapY * 0.6;
+          }
+        }
+      }
+
+      // Step C: Hesaplanan 2D kaymaları 3D dünya pozisyonuna yansıt
+      const rightVec = new THREE.Vector3();
+      const upVec = new THREE.Vector3();
+      camera.matrixWorld.extractBasis(rightVec, upVec, tempVec);
+
+      allSprites.forEach(sprite => {
+        if (!sprite.visible) return;
+
+        const anchor = sprite.userData.anchorPos;
+        const dist = camera.position.distanceTo(anchor);
+        const pixelToWorld = (dist * 0.0018); // Piksel offsetten dünya koordinatına çevirim oranı
+
+        sprite.position.copy(anchor)
+          .addScaledVector(rightVec, sprite.userData.screenOffset.x * pixelToWorld)
+          .addScaledVector(upVec, -sprite.userData.screenOffset.y * pixelToWorld);
+      });
+    }
+
+    // 11. Mod ve Render Fonksiyonları
     function toggle2D3D() {
       is2DMode = !is2DMode;
       const btn = document.getElementById('btn2D3D');
@@ -1080,9 +1150,9 @@
         btn.innerText = "3D Moduna Geç";
         btn.classList.add('active-2d');
         panel2D.style.display = "block";
-        desc.innerHTML = "<strong>2D Modu:</strong> Tepeden a*b* renk kromatiklik düzlemine bakıyorsunuz. Sol tarafta L* (Açıklık) seviyeleri gösterilir.";
+        desc.innerHTML = "<strong>2D Modu:</strong> Önden a*b* kromatiklik düzlemine bakıyorsunuz. Sol tarafta L* (Açıklık) seviyeleri gösterilir.";
 
-        camera.position.set(0, 280, 0.001);
+        camera.position.set(0, 0, 280);
         controls.target.set(0, 0, 0);
         controls.enableRotate = false;
         controls.update();
@@ -1090,9 +1160,9 @@
         btn.innerText = "2D Moduna Geç";
         btn.classList.remove('active-2d');
         panel2D.style.display = "none";
-        desc.innerHTML = "<strong>3D Modu:</strong> Renklerin 3D küre içindeki konumlarını ve ΔE vektör çizgisini serbestçe döndürerek inceleyin.";
+        desc.innerHTML = "<strong>3D Modu:</strong> Dikey eksen <strong>b*</strong>, Yatay eksen <strong>a*</strong>, Derinlik ekseni <strong>L*</strong> (Ekrana dik) olarak hizalanmıştır.";
 
-        camera.position.set(190, 130, 230);
+        camera.position.set(40, 30, 250);
         controls.target.set(0, 0, 0);
         controls.enableRotate = true;
         controls.update();
@@ -1127,9 +1197,9 @@
 
     function resetCamera() {
       if (is2DMode) {
-        camera.position.set(0, 280, 0.001);
+        camera.position.set(0, 0, 280);
       } else {
-        camera.position.set(190, 130, 230);
+        camera.position.set(40, 30, 250);
       }
       controls.target.set(0, 0, 0);
       controls.update();
@@ -1145,6 +1215,7 @@
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
+      updateSpriteScalesAndPositions(); // Her karede sabit piksel ve çakışmasız etiket güncellemesi
       renderer.render(scene, camera);
     }
 
