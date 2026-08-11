@@ -395,6 +395,18 @@
       border-color: #2ecc71;
     }
 
+    button.btn-diff-view {
+      background: #8e44ad;
+      border-color: #9b59b6;
+      color: #ffffff;
+    }
+
+    button.btn-diff-view.active-diff {
+      background: #9b59b6;
+      border-color: #d2b4de;
+      box-shadow: 0 0 8px rgba(155, 89, 182, 0.8);
+    }
+
     .opacity-slider {
       display: flex;
       align-items: center;
@@ -614,7 +626,7 @@
     <button id="btnSolid" class="active" onclick="setRenderMode('solid')">Saydam Küre</button>
     <button id="btnWireframe" onclick="setRenderMode('wireframe')">Tel Kafes</button>
     <button id="btnPoints" onclick="setRenderMode('points')">Noktalar</button>
-    <button onclick="toggleFocusOnPoints()">🔍 Odaklan</button>
+    <button id="btnDiffView" class="btn-diff-view" onclick="toggleDifferenceView()">🎯 Fark Görünümü</button>
     <button onclick="resetCamera()">Sıfırla</button>
     
     <div class="opacity-slider">
@@ -625,6 +637,7 @@
 
   <script>
     let isZoomedIn = false;
+    let isDiffViewMode = false;
 
     function toggleSidebar() {
       document.getElementById('rightSidebar').classList.toggle('minimized');
@@ -723,9 +736,9 @@
       }
 
       const T = 1 - 0.17 * Math.cos(deg2rad(h_bar_prime - 30))
-                  + 0.24 * Math.cos(deg2rad(2 * h_bar_prime))
-                  + 0.32 * Math.cos(deg2rad(3 * h_bar_prime + 6))
-                  - 0.20 * Math.cos(deg2rad(4 * h_bar_prime - 63));
+                + 0.24 * Math.cos(deg2rad(2 * h_bar_prime))
+                + 0.32 * Math.cos(deg2rad(3 * h_bar_prime + 6))
+                - 0.20 * Math.cos(deg2rad(4 * h_bar_prime - 63));
 
       const delta_theta = 30 * Math.exp(-Math.pow((h_bar_prime - 275) / 25, 2));
       const R_C = 2 * Math.sqrt(Math.pow(C_bar_prime, 7) / (Math.pow(C_bar_prime, 7) + Math.pow(25, 7)));
@@ -769,7 +782,7 @@
       return new THREE.Vector3(x, y, z);
     }
 
-    // 5. 3D Küre ve 2D Kesit Modellerinin Önceden Oluşturulması
+    // 5. Modellerin Hazırlanması
     const sphereGeo3D = new THREE.SphereGeometry(radius, 96, 96);
     const count3D = sphereGeo3D.attributes.position.count;
     const colors3D = new Float32Array(count3D * 3);
@@ -834,6 +847,23 @@
     sphereMesh2D.visible = false;
     scene.add(sphereMesh2D);
 
+    // Fark Görünümü Arka Plan Dairesi (a*b* ab Dairesi / Grid)
+    const diffGroup = new THREE.Group();
+    const circleGeo = new THREE.RingGeometry(0, 100, 32);
+    const circleMat = new THREE.MeshBasicMaterial({ color: 0x1e293b, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
+    const diffBgCircle = new THREE.Mesh(circleGeo, circleMat);
+    diffGroup.add(diffBgCircle);
+
+    // Eş Merkezli Tolerans Halkaları (Δa*Δb* daireleri)
+    for (let r = 25; r <= 75; r += 25) {
+      const ringGeo = new THREE.RingGeometry(r - 0.5, r + 0.5, 64);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0x0099cc, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      diffGroup.add(ring);
+    }
+    diffGroup.visible = false;
+    scene.add(diffGroup);
+
     const pointsMaterial = new THREE.PointsMaterial({ size: 3.5, vertexColors: true });
     const spherePoints = new THREE.Points(sphereGeo3D, pointsMaterial);
     spherePoints.visible = false;
@@ -843,14 +873,27 @@
     const axisGroup = new THREE.Group();
     const allSprites = [];
 
+    function createAxisSegment(start, end, hexColor) {
+      const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+      const material = new THREE.LineBasicMaterial({ color: hexColor, transparent: true, opacity: 0.8 });
+      axisGroup.add(new THREE.Line(geometry, material));
+    }
+
     function createAxisLine(start, end, hexColor) {
       const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
       const material = new THREE.LineBasicMaterial({ color: hexColor, transparent: true, opacity: 0.7 });
       axisGroup.add(new THREE.Line(geometry, material));
     }
 
-    createAxisLine(new THREE.Vector3(-120, 0, 0), new THREE.Vector3(120, 0, 0), 0xff3366);
-    createAxisLine(new THREE.Vector3(0, -120, 0), new THREE.Vector3(0, 120, 0), 0xffcc00);
+    // Yatay Eksen (a*): 0'ın solu yeşil (-a*), 0'ın sağı kırmızı (+a*)
+    createAxisSegment(new THREE.Vector3(-120, 0, 0), new THREE.Vector3(0, 0, 0), 0x00ff88);
+    createAxisSegment(new THREE.Vector3(0, 0, 0), new THREE.Vector3(120, 0, 0), 0xff3366);
+
+    // Dikey Eksen (b*): 0'ın yukarısı sarı (+b*), 0'ın aşağısı mavi (-b*)
+    createAxisSegment(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 120, 0), 0xffcc00);
+    createAxisSegment(new THREE.Vector3(0, -120, 0), new THREE.Vector3(0, 0, 0), 0x3399ff);
+
+    // Derinlik Eksen (L*)
     createAxisLine(new THREE.Vector3(0, 0, -115), new THREE.Vector3(0, 0, 115), 0xffffff);
 
     // METİN SPRİTE OLUŞTURUCU
@@ -1051,8 +1094,21 @@
       const a2 = parseFloat(document.getElementById('a2').value) || 0;
       const b2 = parseFloat(document.getElementById('b2').value) || 0;
 
-      currentPosA.copy(labTo3dPos(l1, a1, b1));
-      currentPosB.copy(labTo3dPos(l2, a2, b2));
+      if (isDiffViewMode) {
+        // Referans merkezli (0,0) konumlandırma
+        currentPosA.set(0, 0, 0);
+        const da = a2 - a1;
+        const db = b2 - b1;
+        currentPosB.set(da * 4.0, db * 4.0, 0);
+      } else if (is2DMode) {
+        currentPosA.copy(labTo3dPos(l1, a1, b1));
+        currentPosA.z = 0;
+        currentPosB.copy(labTo3dPos(l2, a2, b2));
+        currentPosB.z = 0;
+      } else {
+        currentPosA.copy(labTo3dPos(l1, a1, b1));
+        currentPosB.copy(labTo3dPos(l2, a2, b2));
+      }
 
       pointAGroup.position.copy(currentPosA);
       pointBGroup.position.copy(currentPosB);
@@ -1063,7 +1119,6 @@
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
-        // Noktaların üzerine binmemesi için ofset mesafeleri artırıldı
         const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(10, dist * 0.45)));
         offsetA.y += 7;
         spriteA.userData.anchorPos.copy(offsetA);
@@ -1132,7 +1187,7 @@
 
         controls.target.copy(mid);
 
-        if (is2DMode) {
+        if (is2DMode || isDiffViewMode) {
           camera.position.set(mid.x, mid.y, mid.z + zoomHeight);
         } else {
           camera.position.set(mid.x + zoomHeight * 0.4, mid.y + zoomHeight * 0.3, mid.z + zoomHeight * 0.9);
@@ -1149,7 +1204,6 @@
     // 11. METİN VE NOKTA EKRAN ÖLÇEKLENDİRMESİ
     function updateObjectScreenSizes() {
       const distA = camera.position.distanceTo(pointAGroup.position);
-      const distB = camera.position.distanceTo(pointBGroup.position);
       
       const pointFactor = 0.0032; 
       pointAGroup.scale.setScalar(distA * pointFactor);
@@ -1183,7 +1237,7 @@
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
         
-        const factor = is2DMode ? 0.0048 : 0.0052;
+        const factor = (is2DMode || isDiffViewMode) ? 0.0048 : 0.0052;
         const scaleVal = dist * factor;
         
         sprite.scale.set(
@@ -1237,6 +1291,8 @@
 
     // 12. Mod ve Render Fonksiyonları
     function toggle2D3D() {
+      if (isDiffViewMode) toggleDifferenceView();
+
       is2DMode = !is2DMode;
       const btn = document.getElementById('btn2D3D');
       const panel2DL = document.getElementById('panel2DL');
@@ -1249,7 +1305,7 @@
         btn.innerText = "3D Moduna Geç";
         btn.classList.add('active-2d');
         panel2DL.style.display = "block";
-        desc.innerHTML = "<strong>2D Modu:</strong> Tam ortadan (<strong>L* = 50</strong>) alınan a*b* kesit düzlemi (Sol: Yeşil, Sağ: Kırmızı, Üst: Sarı, Alt: Mavi).";
+        desc.innerHTML = "<strong>2D Modu:</strong> Tam ortadan (<strong>L* = 50</strong>) alınan standart a*b* kesit düzlemi.";
 
         camera.position.set(0, 0, 280);
         controls.target.set(0, 0, 0);
@@ -1269,23 +1325,62 @@
       isZoomedIn = false;
       const zoomBtn = document.getElementById('btnZoomToggle');
       if (zoomBtn) zoomBtn.innerText = "🔍 Yakınlaş (Noktalara Odaklan)";
+      updateColorsAndDeltaE();
+    }
+
+    function toggleDifferenceView() {
+      if (is2DMode) toggle2D3D();
+
+      isDiffViewMode = !isDiffViewMode;
+      const diffBtn = document.getElementById('btnDiffView');
+      const panel2DL = document.getElementById('panel2DL');
+      const desc = document.getElementById('modeDesc');
+
+      sphereMesh3D.visible = !isDiffViewMode;
+      diffGroup.visible = isDiffViewMode;
+
+      if (isDiffViewMode) {
+        diffBtn.classList.add('active-diff');
+        panel2DL.style.display = "block";
+        desc.innerHTML = "<strong>Fark Görünümü (ab Dairesi):</strong> <strong>Referans (1. Renk)</strong> merkezde (0,0) konumlandırılmıştır. Arka planda ab tolerans daireleri yer alır.";
+
+        camera.position.set(0, 0, 220);
+        controls.target.set(0, 0, 0);
+        controls.enableRotate = false;
+        controls.update();
+      } else {
+        diffBtn.classList.remove('active-diff');
+        panel2DL.style.display = "none";
+        desc.innerHTML = "<strong>3D Modu:</strong> Dikey eksen <strong>b*</strong>, Yatay eksen <strong>a*</strong>, Derinlik ekseni <strong>L*</strong> (Ekrana dik) olarak hizalanmıştır.";
+
+        camera.position.set(40, 30, 250);
+        controls.target.set(0, 0, 0);
+        controls.enableRotate = true;
+        controls.update();
+      }
+      isZoomedIn = false;
+      const zoomBtn = document.getElementById('btnZoomToggle');
+      if (zoomBtn) zoomBtn.innerText = "🔍 Yakınlaş (Noktalara Odaklan)";
+      updateColorsAndDeltaE();
     }
 
     function setRenderMode(mode) {
       document.querySelectorAll('#controls button').forEach(b => {
-        if (b.id !== 'btn2D3D') b.classList.remove('active');
+        if (b.id !== 'btn2D3D' && b.id !== 'btnDiffView') b.classList.remove('active');
       });
 
       if (mode === 'solid') {
-        sphereMesh3D.visible = !is2DMode;
+        sphereMesh3D.visible = !is2DMode && !isDiffViewMode;
         sphereMesh2D.visible = is2DMode;
+        diffGroup.visible = isDiffViewMode;
         sphereMesh3D.material.wireframe = false;
         sliceMaterial.wireframe = false;
         spherePoints.visible = false;
         document.getElementById('btnSolid').classList.add('active');
       } else if (mode === 'wireframe') {
-        sphereMesh3D.visible = !is2DMode;
+        sphereMesh3D.visible = !is2DMode && !isDiffViewMode;
         sphereMesh2D.visible = is2DMode;
+        diffGroup.visible = isDiffViewMode;
         sphereMesh3D.material.wireframe = true;
         sliceMaterial.wireframe = true;
         spherePoints.visible = false;
@@ -1293,6 +1388,7 @@
       } else if (mode === 'points') {
         sphereMesh3D.visible = false;
         sphereMesh2D.visible = false;
+        diffGroup.visible = false;
         spherePoints.visible = true;
         document.getElementById('btnPoints').classList.add('active');
       }
@@ -1302,11 +1398,12 @@
       const opacityVal = parseFloat(val);
       sphereMaterial.opacity = opacityVal;
       sliceMaterial.opacity = opacityVal;
+      circleMat.opacity = opacityVal * 0.6;
     }
 
     function resetCamera() {
-      if (is2DMode) {
-        camera.position.set(0, 0, 280);
+      if (is2DMode || isDiffViewMode) {
+        camera.position.set(0, 0, isDiffViewMode ? 220 : 280);
       } else {
         camera.position.set(40, 30, 250);
       }
