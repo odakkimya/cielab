@@ -805,19 +805,19 @@
     createAxisLine(new THREE.Vector3(0, -120, 0), new THREE.Vector3(0, 120, 0), 0xffcc00);
     createAxisLine(new THREE.Vector3(0, 0, -115), new THREE.Vector3(0, 0, 115), 0xffffff);
 
-    // BÜYÜTÜLMÜŞ VE OKUNABİLİR METİN SPRITE OLUŞTURUCU
+    // BÜYÜTÜLMÜŞ VE OKUNABİLİR METİN SPRITE OLUŞTURUCU (Yüksek Çözünürlük)
     function createTextSprite(text, colorStr, baseWidth = 36, baseHeight = 9) {
       const canvas = document.createElement('canvas');
       canvas.width = 512;
       canvas.height = 128;
       const ctx = canvas.getContext('2d');
       
-      // Metnin arkasına yarı saydam siyah kontur ekleyerek okunabilirliği artırıyoruz
-      ctx.fillStyle = "rgba(10, 12, 16, 0.75)";
+      // Yarı saydam koyu arka plan kutucuğu
+      ctx.fillStyle = "rgba(10, 12, 16, 0.85)";
       ctx.roundRect ? ctx.roundRect(10, 10, 492, 108, 16) : ctx.fillRect(10, 10, 492, 108);
       ctx.fill();
 
-      ctx.font = 'Bold 42px -apple-system, sans-serif';
+      ctx.font = 'Bold 52px -apple-system, sans-serif';
       ctx.fillStyle = colorStr;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -843,11 +843,11 @@
       canvas.height = 128;
       const ctx = canvas.getContext('2d');
       
-      ctx.fillStyle = "rgba(10, 12, 16, 0.75)";
+      ctx.fillStyle = "rgba(10, 12, 16, 0.85)";
       ctx.roundRect ? ctx.roundRect(10, 10, 492, 108, 16) : ctx.fillRect(10, 10, 492, 108);
       ctx.fill();
 
-      ctx.font = 'Bold 40px -apple-system, sans-serif';
+      ctx.font = 'Bold 50px -apple-system, sans-serif';
       ctx.fillStyle = colorStr;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -859,7 +859,7 @@
     }
 
     function addAxisLabel(text, colorStr, x, y, z) {
-      const sprite = createTextSprite(text, colorStr, 32, 8);
+      const sprite = createTextSprite(text, colorStr, 34, 8.5);
       sprite.userData.anchorPos.set(x, y, z);
       sprite.position.set(x, y, z);
       axisGroup.add(sprite);
@@ -875,7 +875,7 @@
 
     scene.add(axisGroup);
 
-    // 7. ZARİF VE KÜÇÜK RENK İŞARET NOKTALARI (A ve B)
+    // 7. ZARİF RENK İŞARET NOKTALARI (A ve B)
     const pointAGroup = new THREE.Group();
     const pointBGroup = new THREE.Group();
 
@@ -896,7 +896,7 @@
     pointAGroup.add(outlineA);
     pointAGroup.add(sphereA);
 
-    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 34, 8.5);
+    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 36, 9);
     scene.add(spriteA);
 
     // Nokta B
@@ -914,7 +914,7 @@
     pointBGroup.add(outlineB);
     pointBGroup.add(sphereB);
 
-    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 34, 8.5);
+    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 36, 9);
     scene.add(spriteB);
 
     scene.add(pointAGroup);
@@ -927,7 +927,7 @@
     deltaCylinder.renderOrder = 996;
     scene.add(deltaCylinder);
 
-    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 30, 7.5);
+    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 32, 8);
     scene.add(spriteDistance);
 
     let currentPosA = new THREE.Vector3();
@@ -1018,21 +1018,21 @@
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
-        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(6, dist * 0.3)));
-        offsetA.y += 4;
+        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(12, dist * 0.4)));
+        offsetA.y += 8;
         spriteA.userData.anchorPos.copy(offsetA);
 
-        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(6, dist * 0.3)));
-        offsetB.y -= 4;
+        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(12, dist * 0.4)));
+        offsetB.y -= 8;
         spriteB.userData.anchorPos.copy(offsetB);
 
         const midPos = currentPosA.clone().add(currentPosB).multiplyScalar(0.5);
-        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(7);
+        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(14);
         spriteDistance.userData.anchorPos.copy(midPos).add(perpDir);
       } else {
-        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-8, 6, 0));
-        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(8, -6, 0));
-        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 10, 0));
+        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-14, 12, 0));
+        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(14, -12, 0));
+        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 18, 0));
       }
 
       const rgb1 = labToRgb(l1, a1, b1);
@@ -1092,9 +1092,9 @@
       controls.update();
     }
 
-    // 11. YAZI BOYUTLARINI GENİŞLETİLMİŞ EKRAN ÖLÇEKLENDİRMESİ
+    // 11. BİLGİSAYAR EKRANI İÇİN BELİRGİN VE BÜYÜK YAZI SCALING
     function updateObjectScreenSizes() {
-      // A. Nokta Boyutu
+      // A. Nokta Boyutları (Zarif ve Sabit)
       const distA = camera.position.distanceTo(pointAGroup.position);
       const distB = camera.position.distanceTo(pointBGroup.position);
       const pointFactor = 0.0055;
@@ -1120,7 +1120,7 @@
         deltaCylinder.scale.set(lineRadius, distAB, lineRadius);
       }
 
-      // C. BÜYÜTÜLMÜŞ METİN ÖLÇEKLENDİRMESİ (Factor 0.0030'dan 0.0055'e çıkarıldı)
+      // C. BELİRGİN İRİ METİN ÖLÇEKLENDİRMESİ (Ölçek katsayısı 0.018 yapıldı)
       const widthHalf = window.innerWidth / 2;
       const heightHalf = window.innerHeight / 2;
       const tempVec = new THREE.Vector3();
@@ -1131,7 +1131,7 @@
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
         
-        const factor = is2DMode ? 0.0050 : 0.0055;
+        const factor = is2DMode ? 0.016 : 0.018;
         const scaleVal = dist * factor;
         
         sprite.scale.set(
@@ -1146,7 +1146,7 @@
         sprite.userData.screenOffset.set(0, 0);
       });
 
-      // D. Çakışma Önleme
+      // D. Çakışma Önleme (Büyüyen Yazılara Göre Geniş Alan Ayrıştırması)
       const dynamicLabels = [spriteA, spriteB, spriteDistance];
       for (let i = 0; i < dynamicLabels.length; i++) {
         for (let j = i + 1; j < dynamicLabels.length; j++) {
@@ -1156,13 +1156,13 @@
           const dx = (s2.userData.screenX + s2.userData.screenOffset.x) - (s1.userData.screenX + s1.userData.screenOffset.x);
           const dy = (s2.userData.screenY + s2.userData.screenOffset.y) - (s1.userData.screenY + s1.userData.screenOffset.y);
           
-          const minDistX = 100;
-          const minDistY = 36;
+          const minDistX = 140;
+          const minDistY = 48;
 
           if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
             const overlapY = (minDistY - Math.abs(dy)) * (dy >= 0 ? 1 : -1);
-            s2.userData.screenOffset.y += overlapY * 0.65;
-            s1.userData.screenOffset.y -= overlapY * 0.65;
+            s2.userData.screenOffset.y += overlapY * 0.7;
+            s1.userData.screenOffset.y -= overlapY * 0.7;
           }
         }
       }
@@ -1229,7 +1229,7 @@
         sphereMesh.visible = true;
         sphereMesh.material.wireframe = true;
         spherePoints.visible = false;
-        document.getElementById('btnWireframe').classList.add('active');
+        document.getElementById('btnPoints').classList.add('active');
       } else if (mode === 'points') {
         sphereMesh.visible = false;
         spherePoints.visible = true;
