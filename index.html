@@ -29,9 +29,9 @@
       background: #0099cc;
       color: white;
       border: none;
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: 8px;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: bold;
       cursor: pointer;
       width: 100%;
@@ -45,75 +45,77 @@
       right: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       z-index: 100;
       max-height: calc(100vh - 80px);
       overflow-y: auto;
-      width: 320px;
+      width: 350px;
       padding-right: 4px;
     }
 
     #rightSidebar::-webkit-scrollbar {
-      width: 5px;
+      width: 6px;
     }
     #rightSidebar::-webkit-scrollbar-thumb {
       background: rgba(0, 153, 204, 0.6);
       border-radius: 4px;
     }
 
-    /* Panel Kutusu Stilleri */
+    /* Panel Kutusu Stilleri (Koyu Tema) */
     .panel-box {
       background: rgba(18, 22, 28, 0.92);
-      padding: 12px 14px;
-      border-radius: 12px;
+      padding: 16px 18px;
+      border-radius: 14px;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     }
 
     h1 {
-      font-size: 14px;
-      margin: 0 0 6px 0;
+      font-size: 16px;
+      margin: 0 0 8px 0;
       color: #0099cc;
+      font-weight: 700;
     }
 
     p {
-      font-size: 11px;
-      line-height: 1.4;
+      font-size: 13px;
+      line-height: 1.5;
       color: #bbb;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .legend {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      font-size: 10px;
-      margin-top: 6px;
+      gap: 6px;
+      font-size: 12px;
+      margin-top: 8px;
       border-top: 1px solid #333;
-      padding-top: 6px;
+      padding-top: 8px;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
       gap: 8px;
+      color: #ddd;
     }
 
     .color-dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
     }
 
     .panel-title {
-      font-size: 12px;
+      font-size: 14px;
       font-weight: bold;
       color: #00bfff;
-      margin-bottom: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 4px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -121,9 +123,9 @@
 
     .color-section {
       background: rgba(255, 255, 255, 0.04);
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -131,24 +133,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .color-name {
-      font-size: 11px;
+      font-size: 13px;
       font-weight: bold;
     }
 
     .color-preview {
-      width: 32px;
-      height: 20px;
-      border-radius: 4px;
+      width: 36px;
+      height: 22px;
+      border-radius: 5px;
       border: 1px solid #fff;
     }
 
     .input-row {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       align-items: center;
     }
 
@@ -156,24 +158,31 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .input-group label {
-      font-size: 9px;
+      font-size: 11px;
       color: #aaa;
+      font-weight: 600;
     }
 
     .input-group input {
       background: #1a202c;
       border: 1px solid #334155;
       color: #fff;
-      padding: 6px 4px;
+      padding: 7px 6px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 600;
       width: 100%;
       text-align: center;
       font-family: monospace;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #0099cc;
     }
 
     /* Action Butonları */
@@ -182,16 +191,16 @@
       background: #0099cc;
       color: white;
       border: none;
-      padding: 8px;
+      padding: 10px;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 11px;
-      transition: background 0.2s;
+      font-size: 13px;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
     }
 
     .btn-action:hover {
@@ -200,7 +209,7 @@
 
     .btn-random {
       background: #8e44ad;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .btn-random:hover {
@@ -209,28 +218,28 @@
 
     /* Delta E Sonuç Kartı */
     .delta-results {
-      background: linear-gradient(135deg, rgba(0,153,204,0.15) 0%, rgba(0,204,153,0.15) 100%);
+      background: linear-gradient(135deg, rgba(0, 153, 204, 0.15) 0%, rgba(0, 204, 153, 0.15) 100%);
       border: 1px solid #0099cc;
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-top: 6px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 8px;
     }
 
     .delta-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .delta-label {
-      font-size: 11px;
-      font-weight: bold;
+      font-size: 13px;
+      font-weight: 600;
       color: #e2e8f0;
     }
 
     .delta-val {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: bold;
       font-family: monospace;
       color: #00ffcc;
@@ -240,37 +249,39 @@
     .interp-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-top: 6px;
+      gap: 8px;
+      margin-top: 8px;
     }
 
     .interp-item {
       background: rgba(255, 255, 255, 0.03);
-      padding: 6px 8px;
-      border-radius: 6px;
-      font-size: 10.5px;
-      line-height: 1.35;
-      border-left: 3px solid #f39c12;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-left: 4px solid #f39c12;
+      color: #e2e8f0;
     }
 
     .interp-item strong {
       color: #00ffcc;
       font-family: monospace;
+      font-size: 13px;
     }
 
     .shift-tag {
       display: inline-block;
-      padding: 1px 5px;
-      border-radius: 3px;
+      padding: 2px 6px;
+      border-radius: 4px;
       font-weight: bold;
-      font-size: 9.5px;
-      margin-left: 3px;
+      font-size: 11px;
+      margin-left: 4px;
     }
 
     .tag-plus { background: rgba(46, 204, 113, 0.25); color: #2ecc71; }
     .tag-minus { background: rgba(231, 76, 60, 0.25); color: #e74c3c; }
 
-    /* 2D Modu Dikey L* Eksen Paneli */
+    /* 2D Modu Dikey L* Eksen Paneli (Sol Taraf) */
     #panel2DL {
       display: none;
       position: absolute;
@@ -279,20 +290,20 @@
       transform: translateY(-50%);
       background: rgba(18, 22, 28, 0.95);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 12px;
-      padding: 12px;
-      width: 180px;
-      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      padding: 14px;
+      width: 190px;
+      backdrop-filter: blur(12px);
       z-index: 10;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
     }
 
     #panel2DL h3 {
-      font-size: 11px;
+      font-size: 12px;
       color: #00bfff;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       border-bottom: 1px solid #333;
-      padding-bottom: 4px;
+      padding-bottom: 6px;
       text-align: center;
     }
 
@@ -306,7 +317,7 @@
     }
 
     .l-bar-track {
-      width: 14px;
+      width: 16px;
       height: 100%;
       background: linear-gradient(to top, #000000 0%, #888888 50%, #ffffff 100%);
       border-radius: 8px;
@@ -316,13 +327,13 @@
 
     .l-marker {
       position: absolute;
-      width: 20px;
+      width: 22px;
       height: 10px;
       border-radius: 5px;
       left: 50%;
       transform: translate(-50%, 50%);
       border: 2px solid #ffffff;
-      box-shadow: 0 0 6px rgba(0,0,0,0.9);
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
       transition: bottom 0.2s ease;
     }
 
@@ -331,7 +342,7 @@
       flex-direction: column;
       justify-content: space-between;
       height: 100%;
-      font-size: 9.5px;
+      font-size: 11px;
       font-weight: bold;
     }
 
@@ -342,12 +353,12 @@
       left: 50%;
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.88);
-      padding: 8px 12px;
-      border-radius: 20px;
+      padding: 10px 16px;
+      border-radius: 24px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
-      gap: 6px;
-      backdrop-filter: blur(8px);
+      gap: 8px;
+      backdrop-filter: blur(10px);
       z-index: 10;
       max-width: 96vw;
       box-sizing: border-box;
@@ -359,10 +370,10 @@
       background: #222;
       color: #fff;
       border: 1px solid #444;
-      padding: 6px 10px;
-      border-radius: 16px;
+      padding: 7px 12px;
+      border-radius: 18px;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: bold;
       transition: all 0.2s ease;
       white-space: nowrap;
@@ -388,14 +399,16 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 10px;
-      margin-left: 2px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #aaa;
+      margin-left: 4px;
       border-left: 1px solid #444;
-      padding-left: 6px;
+      padding-left: 8px;
     }
 
     .opacity-slider input {
-      width: 45px;
+      width: 50px;
     }
 
     /* Mobil Kurallar */
@@ -408,7 +421,7 @@
         top: 10px;
         right: 10px;
         width: calc(100vw - 20px);
-        max-width: 320px;
+        max-width: 340px;
         max-height: calc(100vh - 100px);
       }
 
@@ -421,8 +434,8 @@
         top: auto;
         bottom: 95px;
         transform: none;
-        width: 150px;
-        padding: 8px;
+        width: 160px;
+        padding: 10px;
       }
 
       .l-axis-container {
@@ -434,13 +447,13 @@
         width: 96vw;
         flex-wrap: wrap;
         border-radius: 16px;
-        padding: 6px;
-        gap: 4px;
+        padding: 8px;
+        gap: 6px;
       }
 
       button {
-        padding: 6px 9px;
-        font-size: 10px;
+        padding: 6px 10px;
+        font-size: 11px;
       }
 
       .opacity-slider {
@@ -449,7 +462,7 @@
         padding-left: 0;
         width: 100%;
         justify-content: center;
-        margin-top: 2px;
+        margin-top: 4px;
       }
     }
   </style>
@@ -540,9 +553,10 @@
         </div>
         <div class="delta-row" style="margin-top:4px;">
           <span class="delta-label">ΔE00 (CIEDE2000):</span>
-          <span id="valDelta00" class="delta-val" style="color:#00ff88; font-size:15px;">0.00</span>
+          <span id="valDelta00" class="delta-val" style="color:#00ff88; font-size:17px;">0.00</span>
         </div>
-        <button class="btn-action" style="margin-top:6px;" onclick="focusOnPoints()">🔍 Yakınlaş (Noktalara Odaklan)</button>
+        <!-- DİNAMİK YAKINLAŞ / UZAKLAŞ BUTONU -->
+        <button id="btnZoomToggle" class="btn-action" style="margin-top:8px;" onclick="toggleFocusOnPoints()">🔍 Yakınlaş (Noktalara Odaklan)</button>
       </div>
     </div>
 
@@ -551,7 +565,7 @@
       <div class="panel-title" style="color:#f39c12;">
         <span>💡 L*a*b* Yön Analizi & Yorum</span>
       </div>
-      <p style="font-size:10px; color:#aaa; margin-bottom:4px;">
+      <p style="font-size:12px; color:#aaa; margin-bottom:6px;">
         Numunenin (2. Renk), Referansa (1. Renk) göre kayma yönü ve farkları:
       </p>
 
@@ -573,7 +587,7 @@
 
   </div>
 
-  <!-- 2D Modu L* Eksen Paneli -->
+  <!-- 2D Modu Sol L* Eksen Paneli -->
   <div id="panel2DL">
     <h3>☀️ L* (Açıklık) Analizi</h3>
     <div class="l-axis-container">
@@ -589,7 +603,7 @@
         <div id="markerL2" class="l-marker" style="background:#3399ff; bottom:54%;"></div>
       </div>
     </div>
-    <div style="font-size:10px; text-align:center; margin-top:6px; color:#00ffcc; font-weight:bold;">
+    <div style="font-size:12px; text-align:center; margin-top:8px; color:#00ffcc; font-weight:bold;">
       Fark (ΔL*): <span id="valDeltaL">1.0</span>
     </div>
   </div>
@@ -600,7 +614,7 @@
     <button id="btnSolid" class="active" onclick="setRenderMode('solid')">Saydam Küre</button>
     <button id="btnWireframe" onclick="setRenderMode('wireframe')">Tel Kafes</button>
     <button id="btnPoints" onclick="setRenderMode('points')">Noktalar</button>
-    <button onclick="focusOnPoints()">🔍 Odaklan</button>
+    <button onclick="toggleFocusOnPoints()">🔍 Odaklan</button>
     <button onclick="resetCamera()">Sıfırla</button>
     
     <div class="opacity-slider">
@@ -610,6 +624,8 @@
   </div>
 
   <script>
+    let isZoomedIn = false;
+
     function toggleSidebar() {
       document.getElementById('rightSidebar').classList.toggle('minimized');
     }
@@ -753,28 +769,27 @@
       return new THREE.Vector3(x, y, z);
     }
 
-    // 5. Renk Küresi Oluşturma
-    const sphereGeometry = new THREE.SphereGeometry(radius, 48, 48);
-    const count = sphereGeometry.attributes.position.count;
-    const colors = new Float32Array(count * 3);
-    const pos = sphereGeometry.attributes.position;
+    // 5. 3D Küre ve 2D Kesit Modellerinin Önceden Oluşturulması (Sıfır Kasma Performansı)
+    const sphereGeo3D = new THREE.SphereGeometry(radius, 96, 96);
+    const count3D = sphereGeo3D.attributes.position.count;
+    const colors3D = new Float32Array(count3D * 3);
+    const pos3D = sphereGeo3D.attributes.position;
 
-    for (let i = 0; i < count; i++) {
-      const x = pos.getX(i);
-      const y = pos.getY(i);
-      const z = pos.getZ(i);
+    for (let i = 0; i < count3D; i++) {
+      const x = pos3D.getX(i);
+      const y = pos3D.getY(i);
+      const z = pos3D.getZ(i);
 
       const a = x * 1.1;
       const b = y * 1.1;
       const L = ((z + radius) / (2 * radius)) * 100;
 
       const rgb = labToRgb(L, a, b);
-      colors[i * 3]     = rgb[0];
-      colors[i * 3 + 1] = rgb[1];
-      colors[i * 3 + 2] = rgb[2];
+      colors3D[i * 3]     = rgb[0];
+      colors3D[i * 3 + 1] = rgb[1];
+      colors3D[i * 3 + 2] = rgb[2];
     }
-
-    sphereGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    sphereGeo3D.setAttribute('color', new THREE.BufferAttribute(colors3D, 3));
 
     const sphereMaterial = new THREE.MeshBasicMaterial({
       vertexColors: true,
@@ -783,11 +798,44 @@
       opacity: 0.35,
       depthWrite: false
     });
-    const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    scene.add(sphereMesh);
+    const sphereMesh3D = new THREE.Mesh(sphereGeo3D, sphereMaterial);
+    scene.add(sphereMesh3D);
+
+    // 2D Kesit Düzlemi (Z=0, L*=50 Ortadan Kesit)
+    const sliceGeo2D = new THREE.SphereGeometry(radius, 96, 96);
+    const count2D = sliceGeo2D.attributes.position.count;
+    const colors2D = new Float32Array(count2D * 3);
+    const pos2D = sliceGeo2D.attributes.position;
+
+    for (let i = 0; i < count2D; i++) {
+      const x = pos2D.getX(i);
+      const y = pos2D.getY(i);
+      pos2D.setZ(i, 0); // Tam ortadan kesit (L* = 50)
+
+      const a = x * 1.1;
+      const b = y * 1.1;
+      const L = 50;
+
+      const rgb = labToRgb(L, a, b);
+      colors2D[i * 3]     = rgb[0];
+      colors2D[i * 3 + 1] = rgb[1];
+      colors2D[i * 3 + 2] = rgb[2];
+    }
+    sliceGeo2D.setAttribute('color', new THREE.BufferAttribute(colors2D, 3));
+
+    const sliceMaterial = new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.35,
+      depthWrite: false
+    });
+    const sphereMesh2D = new THREE.Mesh(sliceGeo2D, sliceMaterial);
+    sphereMesh2D.visible = false;
+    scene.add(sphereMesh2D);
 
     const pointsMaterial = new THREE.PointsMaterial({ size: 3.5, vertexColors: true });
-    const spherePoints = new THREE.Points(sphereGeometry, pointsMaterial);
+    const spherePoints = new THREE.Points(sphereGeo3D, pointsMaterial);
     spherePoints.visible = false;
     scene.add(spherePoints);
 
@@ -801,27 +849,27 @@
       axisGroup.add(new THREE.Line(geometry, material));
     }
 
-    createAxisLine(new THREE.Vector3(-120, 0, 0), new THREE.Vector3(120, 0, 0), 0xff0055);
+    createAxisLine(new THREE.Vector3(-120, 0, 0), new THREE.Vector3(120, 0, 0), 0xff3366);
     createAxisLine(new THREE.Vector3(0, -120, 0), new THREE.Vector3(0, 120, 0), 0xffcc00);
     createAxisLine(new THREE.Vector3(0, 0, -115), new THREE.Vector3(0, 0, 115), 0xffffff);
 
-    // BÜYÜTÜLMÜŞ VE OKUNABİLİR METİN SPRITE OLUŞTURUCU (Yüksek Çözünürlük)
-    function createTextSprite(text, colorStr, baseWidth = 36, baseHeight = 9) {
+    // METİN SPRİTE OLUŞTURUCU
+    function createTextSprite(text, colorStr, baseWidth = 24, baseHeight = 6) {
       const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 128;
+      canvas.width = 384;
+      canvas.height = 96;
       const ctx = canvas.getContext('2d');
       
-      // Yarı saydam koyu arka plan kutucuğu
-      ctx.fillStyle = "rgba(10, 12, 16, 0.85)";
-      ctx.roundRect ? ctx.roundRect(10, 10, 492, 108, 16) : ctx.fillRect(10, 10, 492, 108);
-      ctx.fill();
-
-      ctx.font = 'Bold 52px -apple-system, sans-serif';
-      ctx.fillStyle = colorStr;
+      ctx.font = 'Bold 32px -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, 256, 64);
+      
+      ctx.strokeStyle = 'rgba(10, 12, 16, 0.95)';
+      ctx.lineWidth = 5;
+      ctx.strokeText(text, 192, 48);
+
+      ctx.fillStyle = colorStr;
+      ctx.fillText(text, 192, 48);
 
       const texture = new THREE.CanvasTexture(canvas);
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
@@ -839,19 +887,20 @@
 
     function updateSpriteText(sprite, text, colorStr) {
       const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 128;
+      canvas.width = 384;
+      canvas.height = 96;
       const ctx = canvas.getContext('2d');
       
-      ctx.fillStyle = "rgba(10, 12, 16, 0.85)";
-      ctx.roundRect ? ctx.roundRect(10, 10, 492, 108, 16) : ctx.fillRect(10, 10, 492, 108);
-      ctx.fill();
-
-      ctx.font = 'Bold 50px -apple-system, sans-serif';
-      ctx.fillStyle = colorStr;
+      ctx.font = 'Bold 32px -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, 256, 64);
+      
+      ctx.strokeStyle = 'rgba(10, 12, 16, 0.95)';
+      ctx.lineWidth = 5;
+      ctx.strokeText(text, 192, 48);
+
+      ctx.fillStyle = colorStr;
+      ctx.fillText(text, 192, 48);
 
       if (sprite.material.map) sprite.material.map.dispose();
       sprite.material.map = new THREE.CanvasTexture(canvas);
@@ -859,7 +908,7 @@
     }
 
     function addAxisLabel(text, colorStr, x, y, z) {
-      const sprite = createTextSprite(text, colorStr, 34, 8.5);
+      const sprite = createTextSprite(text, colorStr, 24, 6);
       sprite.userData.anchorPos.set(x, y, z);
       sprite.position.set(x, y, z);
       axisGroup.add(sprite);
@@ -875,7 +924,7 @@
 
     scene.add(axisGroup);
 
-    // 7. ZARİF RENK İŞARET NOKTALARI (A ve B)
+    // 7. RENK İŞARET NOKTALARI (A ve B)
     const pointAGroup = new THREE.Group();
     const pointBGroup = new THREE.Group();
 
@@ -896,7 +945,7 @@
     pointAGroup.add(outlineA);
     pointAGroup.add(sphereA);
 
-    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 36, 9);
+    const spriteA = createTextSprite("1. Renk (A)", "#ff4d4d", 26, 6.5);
     scene.add(spriteA);
 
     // Nokta B
@@ -914,20 +963,20 @@
     pointBGroup.add(outlineB);
     pointBGroup.add(sphereB);
 
-    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 36, 9);
+    const spriteB = createTextSprite("2. Renk (B)", "#3399ff", 26, 6.5);
     scene.add(spriteB);
 
     scene.add(pointAGroup);
     scene.add(pointBGroup);
 
-    // 8. İNCE VE NET İŞARET ÇİZGİSİ (Delta E Vektörü)
+    // 8. İŞARET ÇİZGİSİ (Delta E Vektörü)
     const deltaCylinderGeo = new THREE.CylinderGeometry(1, 1, 1, 12);
     const deltaCylinderMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc, depthTest: false });
     const deltaCylinder = new THREE.Mesh(deltaCylinderGeo, deltaCylinderMat);
     deltaCylinder.renderOrder = 996;
     scene.add(deltaCylinder);
 
-    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 32, 8);
+    const spriteDistance = createTextSprite("ΔE: 0.00", "#00ffcc", 24, 6);
     scene.add(spriteDistance);
 
     let currentPosA = new THREE.Vector3();
@@ -961,7 +1010,6 @@
       const da = a2 - a1;
       const db = b2 - b1;
 
-      // 1. L* Yorumu
       document.getElementById('txtDL').innerText = (dL >= 0 ? "+" : "") + dL.toFixed(1);
       let descL = "";
       if (Math.abs(dL) < 0.2) descL = "Açıklık/Koyuluk farkı yok.";
@@ -969,7 +1017,6 @@
       else descL = `Numune referanstan <span class="shift-tag tag-minus">Daha Koyu</span> (-L*).`;
       document.getElementById('descL').innerHTML = descL;
 
-      // 2. a* Yorumu
       document.getElementById('txtDa').innerText = (da >= 0 ? "+" : "") + da.toFixed(1);
       let desca = "";
       if (Math.abs(da) < 0.2) desca = "Kırmızı/Yeşil dengesi aynı.";
@@ -977,7 +1024,6 @@
       else desca = `Numune <span class="shift-tag tag-minus">Daha Yeşil / Az Kırmızı</span> (-a*).`;
       document.getElementById('desca').innerHTML = desca;
 
-      // 3. b* Yorumu
       document.getElementById('txtDb').innerText = (db >= 0 ? "+" : "") + db.toFixed(1);
       let descb = "";
       if (Math.abs(db) < 0.2) descb = "Sarı/Mavi dengesi aynı.";
@@ -985,7 +1031,6 @@
       else descb = `Numune <span class="shift-tag tag-minus">Daha Mavi / Az Sarı</span> (-b*).`;
       document.getElementById('descb').innerHTML = descb;
 
-      // 4. Genel Algılanabilirlik Değerlendirmesi
       let descEval = "";
       if (d00 < 0.5) descEval = `🎯 <strong>ΔE00 = ${d00.toFixed(2)}:</strong> İnsan gözüyle ayırt edilemez (Tam eşleşme).`;
       else if (d00 < 1.0) descEval = `✅ <strong>ΔE00 = ${d00.toFixed(2)}:</strong> Eğitimli gözler zorlukla seçebilir.`;
@@ -1018,21 +1063,21 @@
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
-        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(12, dist * 0.4)));
-        offsetA.y += 8;
+        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(6, dist * 0.28)));
+        offsetA.y += 4;
         spriteA.userData.anchorPos.copy(offsetA);
 
-        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(12, dist * 0.4)));
-        offsetB.y -= 8;
+        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(6, dist * 0.28)));
+        offsetB.y -= 4;
         spriteB.userData.anchorPos.copy(offsetB);
 
         const midPos = currentPosA.clone().add(currentPosB).multiplyScalar(0.5);
-        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(14);
+        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(6);
         spriteDistance.userData.anchorPos.copy(midPos).add(perpDir);
       } else {
-        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-14, 12, 0));
-        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(14, -12, 0));
-        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 18, 0));
+        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-7, 6, 0));
+        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(7, -6, 0));
+        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 9, 0));
       }
 
       const rgb1 = labToRgb(l1, a1, b1);
@@ -1065,43 +1110,49 @@
       document.getElementById(id).addEventListener('input', updateColorsAndDeltaE);
     });
 
-    // 10. Kamerayı Noktalara Odaklama
-    function focusOnPoints() {
-      const l1 = parseFloat(document.getElementById('l1').value) || 0;
-      const a1 = parseFloat(document.getElementById('a1').value) || 0;
-      const b1 = parseFloat(document.getElementById('b1').value) || 0;
-      const l2 = parseFloat(document.getElementById('l2').value) || 0;
-      const a2 = parseFloat(document.getElementById('a2').value) || 0;
-      const b2 = parseFloat(document.getElementById('b2').value) || 0;
+    // 10. DİNAMİK YAKINLAŞ/UZAKLAŞ GEÇİŞİ
+    function toggleFocusOnPoints() {
+      const zoomBtn = document.getElementById('btnZoomToggle');
 
-      const posA = labTo3dPos(l1, a1, b1);
-      const posB = labTo3dPos(l2, a2, b2);
+      if (!isZoomedIn) {
+        const l1 = parseFloat(document.getElementById('l1').value) || 0;
+        const a1 = parseFloat(document.getElementById('a1').value) || 0;
+        const b1 = parseFloat(document.getElementById('b1').value) || 0;
+        const l2 = parseFloat(document.getElementById('l2').value) || 0;
+        const a2 = parseFloat(document.getElementById('a2').value) || 0;
+        const b2 = parseFloat(document.getElementById('b2').value) || 0;
 
-      const mid = posA.clone().add(posB).multiplyScalar(0.5);
-      const dist = Math.max(posA.distanceTo(posB), 4);
+        const posA = labTo3dPos(l1, a1, b1);
+        const posB = labTo3dPos(l2, a2, b2);
 
-      const zoomHeight = Math.max(dist * 2.8, 18);
+        const mid = posA.clone().add(posB).multiplyScalar(0.5);
+        const dist = Math.max(posA.distanceTo(posB), 4);
+        const zoomHeight = Math.max(dist * 2.8, 18);
 
-      controls.target.copy(mid);
+        controls.target.copy(mid);
 
-      if (is2DMode) {
-        camera.position.set(mid.x, mid.y, mid.z + zoomHeight);
+        if (is2DMode) {
+          camera.position.set(mid.x, mid.y, mid.z + zoomHeight);
+        } else {
+          camera.position.set(mid.x + zoomHeight * 0.4, mid.y + zoomHeight * 0.3, mid.z + zoomHeight * 0.9);
+        }
+        
+        isZoomedIn = true;
+        if (zoomBtn) zoomBtn.innerText = "🔎 Uzaklaş (Genel Bakışa Dön)";
       } else {
-        camera.position.set(mid.x + zoomHeight * 0.4, mid.y + zoomHeight * 0.3, mid.z + zoomHeight * 0.9);
+        resetCamera();
       }
       controls.update();
     }
 
-    // 11. BİLGİSAYAR EKRANI İÇİN BELİRGİN VE BÜYÜK YAZI SCALING
+    // 11. METİN EKRAN ÖLÇEKLENDİRMESİ
     function updateObjectScreenSizes() {
-      // A. Nokta Boyutları (Zarif ve Sabit)
       const distA = camera.position.distanceTo(pointAGroup.position);
       const distB = camera.position.distanceTo(pointBGroup.position);
       const pointFactor = 0.0055;
       pointAGroup.scale.setScalar(distA * pointFactor);
       pointBGroup.scale.setScalar(distB * pointFactor);
 
-      // B. Bağlantı Çizgisi
       const distAB = currentPosA.distanceTo(currentPosB);
       if (distAB < 0.001) {
         deltaCylinder.visible = false;
@@ -1120,7 +1171,6 @@
         deltaCylinder.scale.set(lineRadius, distAB, lineRadius);
       }
 
-      // C. BELİRGİN İRİ METİN ÖLÇEKLENDİRMESİ (Ölçek katsayısı 0.018 yapıldı)
       const widthHalf = window.innerWidth / 2;
       const heightHalf = window.innerHeight / 2;
       const tempVec = new THREE.Vector3();
@@ -1131,7 +1181,7 @@
         const anchor = sprite.userData.anchorPos;
         const dist = camera.position.distanceTo(anchor);
         
-        const factor = is2DMode ? 0.016 : 0.018;
+        const factor = is2DMode ? 0.0048 : 0.0052;
         const scaleVal = dist * factor;
         
         sprite.scale.set(
@@ -1146,7 +1196,6 @@
         sprite.userData.screenOffset.set(0, 0);
       });
 
-      // D. Çakışma Önleme (Büyüyen Yazılara Göre Geniş Alan Ayrıştırması)
       const dynamicLabels = [spriteA, spriteB, spriteDistance];
       for (let i = 0; i < dynamicLabels.length; i++) {
         for (let j = i + 1; j < dynamicLabels.length; j++) {
@@ -1156,18 +1205,17 @@
           const dx = (s2.userData.screenX + s2.userData.screenOffset.x) - (s1.userData.screenX + s1.userData.screenOffset.x);
           const dy = (s2.userData.screenY + s2.userData.screenOffset.y) - (s1.userData.screenY + s1.userData.screenOffset.y);
           
-          const minDistX = 140;
-          const minDistY = 48;
+          const minDistX = 70;
+          const minDistY = 24;
 
           if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
             const overlapY = (minDistY - Math.abs(dy)) * (dy >= 0 ? 1 : -1);
-            s2.userData.screenOffset.y += overlapY * 0.7;
-            s1.userData.screenOffset.y -= overlapY * 0.7;
+            s2.userData.screenOffset.y += overlapY * 0.6;
+            s1.userData.screenOffset.y -= overlapY * 0.6;
           }
         }
       }
 
-      // E. Offsetleri Dünyaya Yansıt
       const rightVec = new THREE.Vector3();
       const upVec = new THREE.Vector3();
       camera.matrixWorld.extractBasis(rightVec, upVec, tempVec);
@@ -1185,18 +1233,22 @@
       });
     }
 
-    // 12. Mod ve Render Fonksiyonları
+    // 12. Mod ve Render Fonksiyonları (Anlık Geçiş Optimizasyonu)
     function toggle2D3D() {
       is2DMode = !is2DMode;
       const btn = document.getElementById('btn2D3D');
-      const panel2D = document.getElementById('panel2DL');
+      const panel2DL = document.getElementById('panel2DL');
       const desc = document.getElementById('modeDesc');
+
+      // Döngü maliyeti olmadan sadece görünürlük değiştirilerek kasma önlendi
+      sphereMesh3D.visible = !is2DMode;
+      sphereMesh2D.visible = is2DMode;
 
       if (is2DMode) {
         btn.innerText = "3D Moduna Geç";
         btn.classList.add('active-2d');
-        panel2D.style.display = "block";
-        desc.innerHTML = "<strong>2D Modu:</strong> Önden a*b* kromatiklik düzlemine bakıyorsunuz. Sol tarafta L* (Açıklık) seviyeleri gösterilir.";
+        panel2DL.style.display = "block";
+        desc.innerHTML = "<strong>2D Modu:</strong> Tam ortadan (<strong>L* = 50</strong>) alınan a*b* kesit düzlemi (Sol: Yeşil, Sağ: Kırmızı, Üst: Sarı, Alt: Mavi).";
 
         camera.position.set(0, 0, 280);
         controls.target.set(0, 0, 0);
@@ -1205,7 +1257,7 @@
       } else {
         btn.innerText = "2D Moduna Geç";
         btn.classList.remove('active-2d');
-        panel2D.style.display = "none";
+        panel2DL.style.display = "none";
         desc.innerHTML = "<strong>3D Modu:</strong> Dikey eksen <strong>b*</strong>, Yatay eksen <strong>a*</strong>, Derinlik ekseni <strong>L*</strong> (Ekrana dik) olarak hizalanmıştır.";
 
         camera.position.set(40, 30, 250);
@@ -1213,6 +1265,9 @@
         controls.enableRotate = true;
         controls.update();
       }
+      isZoomedIn = false;
+      const zoomBtn = document.getElementById('btnZoomToggle');
+      if (zoomBtn) zoomBtn.innerText = "🔍 Yakınlaş (Noktalara Odaklan)";
     }
 
     function setRenderMode(mode) {
@@ -1221,24 +1276,31 @@
       });
 
       if (mode === 'solid') {
-        sphereMesh.visible = true;
-        sphereMesh.material.wireframe = false;
+        sphereMesh3D.visible = !is2DMode;
+        sphereMesh2D.visible = is2DMode;
+        sphereMesh3D.material.wireframe = false;
+        sliceMaterial.wireframe = false;
         spherePoints.visible = false;
         document.getElementById('btnSolid').classList.add('active');
       } else if (mode === 'wireframe') {
-        sphereMesh.visible = true;
-        sphereMesh.material.wireframe = true;
+        sphereMesh3D.visible = !is2DMode;
+        sphereMesh2D.visible = is2DMode;
+        sphereMesh3D.material.wireframe = true;
+        sliceMaterial.wireframe = true;
         spherePoints.visible = false;
-        document.getElementById('btnPoints').classList.add('active');
+        document.getElementById('btnWireframe').classList.add('active');
       } else if (mode === 'points') {
-        sphereMesh.visible = false;
+        sphereMesh3D.visible = false;
+        sphereMesh2D.visible = false;
         spherePoints.visible = true;
         document.getElementById('btnPoints').classList.add('active');
       }
     }
 
     function updateOpacity(val) {
-      sphereMaterial.opacity = parseFloat(val);
+      const opacityVal = parseFloat(val);
+      sphereMaterial.opacity = opacityVal;
+      sliceMaterial.opacity = opacityVal;
     }
 
     function resetCamera() {
@@ -1249,6 +1311,10 @@
       }
       controls.target.set(0, 0, 0);
       controls.update();
+
+      isZoomedIn = false;
+      const zoomBtn = document.getElementById('btnZoomToggle');
+      if (zoomBtn) zoomBtn.innerText = "🔍 Yakınlaş (Noktalara Odaklan)";
     }
 
     window.addEventListener('resize', () => {
