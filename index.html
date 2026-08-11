@@ -769,7 +769,7 @@
       return new THREE.Vector3(x, y, z);
     }
 
-    // 5. 3D Küre ve 2D Kesit Modellerinin Önceden Oluşturulması (Sıfır Kasma Performansı)
+    // 5. 3D Küre ve 2D Kesit Modellerinin Önceden Oluşturulması
     const sphereGeo3D = new THREE.SphereGeometry(radius, 96, 96);
     const count3D = sphereGeo3D.attributes.position.count;
     const colors3D = new Float32Array(count3D * 3);
@@ -810,7 +810,7 @@
     for (let i = 0; i < count2D; i++) {
       const x = pos2D.getX(i);
       const y = pos2D.getY(i);
-      pos2D.setZ(i, 0); // Tam ortadan kesit (L* = 50)
+      pos2D.setZ(i, 0);
 
       const a = x * 1.1;
       const b = y * 1.1;
@@ -1063,21 +1063,22 @@
       if (dist > 0.001) {
         const normDir = dirAB.clone().normalize();
 
-        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(6, dist * 0.28)));
-        offsetA.y += 4;
+        // Noktaların üzerine binmemesi için ofset mesafeleri artırıldı
+        const offsetA = currentPosA.clone().sub(normDir.clone().multiplyScalar(Math.max(10, dist * 0.45)));
+        offsetA.y += 7;
         spriteA.userData.anchorPos.copy(offsetA);
 
-        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(6, dist * 0.28)));
-        offsetB.y -= 4;
+        const offsetB = currentPosB.clone().add(normDir.clone().multiplyScalar(Math.max(10, dist * 0.45)));
+        offsetB.y -= 7;
         spriteB.userData.anchorPos.copy(offsetB);
 
         const midPos = currentPosA.clone().add(currentPosB).multiplyScalar(0.5);
-        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(6);
+        const perpDir = new THREE.Vector3(-normDir.y, normDir.x + 1, normDir.z).normalize().multiplyScalar(8);
         spriteDistance.userData.anchorPos.copy(midPos).add(perpDir);
       } else {
-        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-7, 6, 0));
-        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(7, -6, 0));
-        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 9, 0));
+        spriteA.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(-10, 8, 0));
+        spriteB.userData.anchorPos.copy(currentPosB).add(new THREE.Vector3(10, -8, 0));
+        spriteDistance.userData.anchorPos.copy(currentPosA).add(new THREE.Vector3(0, 12, 0));
       }
 
       const rgb1 = labToRgb(l1, a1, b1);
@@ -1145,13 +1146,14 @@
       controls.update();
     }
 
-    // 11. METİN EKRAN ÖLÇEKLENDİRMESİ
+    // 11. METİN VE NOKTA EKRAN ÖLÇEKLENDİRMESİ
     function updateObjectScreenSizes() {
       const distA = camera.position.distanceTo(pointAGroup.position);
       const distB = camera.position.distanceTo(pointBGroup.position);
-      const pointFactor = 0.0055;
+      
+      const pointFactor = 0.0032; 
       pointAGroup.scale.setScalar(distA * pointFactor);
-      pointBGroup.scale.setScalar(distB * pointFactor);
+      pointBGroup.scale.setScalar(distA * pointFactor);
 
       const distAB = currentPosA.distanceTo(currentPosB);
       if (distAB < 0.001) {
@@ -1205,8 +1207,8 @@
           const dx = (s2.userData.screenX + s2.userData.screenOffset.x) - (s1.userData.screenX + s1.userData.screenOffset.x);
           const dy = (s2.userData.screenY + s2.userData.screenOffset.y) - (s1.userData.screenY + s1.userData.screenOffset.y);
           
-          const minDistX = 70;
-          const minDistY = 24;
+          const minDistX = 75;
+          const minDistY = 28;
 
           if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
             const overlapY = (minDistY - Math.abs(dy)) * (dy >= 0 ? 1 : -1);
@@ -1233,14 +1235,13 @@
       });
     }
 
-    // 12. Mod ve Render Fonksiyonları (Anlık Geçiş Optimizasyonu)
+    // 12. Mod ve Render Fonksiyonları
     function toggle2D3D() {
       is2DMode = !is2DMode;
       const btn = document.getElementById('btn2D3D');
       const panel2DL = document.getElementById('panel2DL');
       const desc = document.getElementById('modeDesc');
 
-      // Döngü maliyeti olmadan sadece görünürlük değiştirilerek kasma önlendi
       sphereMesh3D.visible = !is2DMode;
       sphereMesh2D.visible = is2DMode;
 
